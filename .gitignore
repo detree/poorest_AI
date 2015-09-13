@@ -34,12 +34,6 @@ local.properties
 
 *.prx
 
-*.tii
-
-*.prx
-
-*.tii
-
 *.tis
 
 prob1_searching/.recommenders/index/http___download_eclipse_org_recommenders_models_luna_/segments_2
@@ -50,16 +44,12 @@ prob1_searching/.recommenders/index/http___download_eclipse_org_recommenders_mod
 
 *.fdt
 
-*.fdt
-
 *.fdx
 
 *.fnm
 
-prob1_searching/.recommenders/index/http___download_eclipse_org_recommenders_models_luna_/_1.frq
+*.frq
 
-prob1_searching/.recommenders/index/http___download_eclipse_org_recommenders_models_luna_/_1.nrm
+*.nrm
 
-*.fdt
-
-prob1_searching/.recommenders/index/http___download_eclipse_org_recommenders_models_luna_/segments_1
+*.prx

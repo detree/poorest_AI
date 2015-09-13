@@ -4,11 +4,14 @@
 *.ear
 *.class
 
+# MAC specific git ignore
+.DS_Store
+
 # eclipse specific git ignore
 *.pydevproject
 .project
 .metadata
-.DS_Store
+.recommenders
 bin/**
 tmp/**
 tmp/**/*

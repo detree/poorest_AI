@@ -8,7 +8,7 @@ public class maze{
 	static String maze_read = null; /* the maze read from the txt file */
 	static int maze_width = 0;
 	static int maze_height = 0;
-	static int[] maze_position = new int[2]; /* 0: start state; 1: goal state */
+	static int[] maze_position = new int[2];
 	
 	/*
 	 * 
@@ -92,21 +92,5 @@ public class maze{
 	 */
 	public static int get_height(){
 		return maze_height;
-	}
-	
-	/*
-	 * input: none
-	 * return: index of the start state
-	 */
-	public static int get_start_state(){
-		return maze_position[0];
-	}
-	
-	/*
-	 * input: none
-	 * return: index of the goal state
-	 */
-	public static int get_goal_state(){
-		return maze_position[1];
 	}
 }

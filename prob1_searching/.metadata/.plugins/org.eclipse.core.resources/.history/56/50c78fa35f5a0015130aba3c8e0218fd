@@ -93,20 +93,4 @@ public class maze{
 	public static int get_height(){
 		return maze_height;
 	}
-	
-	/*
-	 * input: none
-	 * return: index of the start state
-	 */
-	public static int get_start_state(){
-		return maze_position[0];
-	}
-	
-	/*
-	 * input: none
-	 * return: index of the goal state
-	 */
-	public static int get_goal_state(){
-		return maze_position[1];
-	}
 }

@@ -141,4 +141,20 @@ public class Maze{
 		}
 		return -1;
 	}
+	
+	public int anhattan_distance(int x1, int y1, int x2, int y2){
+		int ret_distance = 0;
+		
+		if(x1 - x2 < 0)
+			ret_distance += (x2 - x1);
+		else
+			ret_distance += (x1 - x2);
+	
+		if(y1 - y2 < 0)
+			ret_distance += (y2 - y1);
+		else
+			ret_distance += (y1 - y2);
+		
+		return ret_distance;
+	}
 }

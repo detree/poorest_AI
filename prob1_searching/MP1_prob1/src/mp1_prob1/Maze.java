@@ -61,8 +61,8 @@ public class Maze{
 		}
 		
 		/* store start state and goal state */
-		maze_position[0] = search('.');
-		maze_position[1] = search('P');
+		maze_position[0] = search('P');
+		maze_position[1] = search('.');
 		//fill_in_maze(0,0,'a');
 		//System.out.println(maze_read[maze_position[0]] + " " + maze_read[maze_position[1]]);
 		//System.out.println(maze_read.length);

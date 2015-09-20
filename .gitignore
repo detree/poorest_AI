@@ -29,3 +29,27 @@ local.properties
 
 # Locally stored "Eclipse launch configurations"
 *.launch
+
+*.tii
+
+*.prx
+
+*.tis
+
+prob1_searching/.recommenders/index/http___download_eclipse_org_recommenders_models_luna_/segments_2
+
+*.gen
+
+*.properties
+
+*.fdt
+
+*.fdx
+
+*.fnm
+
+*.frq
+
+*.nrm
+
+*.prx

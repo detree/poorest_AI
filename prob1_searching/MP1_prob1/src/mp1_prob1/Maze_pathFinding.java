@@ -7,17 +7,19 @@ import java.util.Stack;
 public class Maze_pathFinding {
 
 	/*
-	 * input - current maze return 0 - if success, -1 if fail solve the maze
-	 * with greedy best first algorithm
+	 * input: cmaze - currentmaze  
+	 * return: 0 - if success, -1 if fail 
+	 * solve a maze with greedy best first algorithm
 	 */
 	public int SolveMazeGBFS(Maze cmaze) {
 		Stack st = new Stack();
 		int mazeSize = cmaze.get_width() * cmaze.get_height();
 		int[] parent = new int[mazeSize];
-		char[] visited = new char[mazeSize];
+		int[] visited = new int[mazeSize];
 		int[] Mdist = new int[mazeSize];
 		int goalstate = cmaze.get_goal_state();
 		int pathcost = 0;
+		int n_node = 1;
 		for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
 			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_width()) != '%')
 				Mdist[i] = Math.abs(goalstate % cmaze.get_width() - i
@@ -28,12 +30,14 @@ public class Maze_pathFinding {
 		int current = cmaze.get_start_state();
 		int next_pos = -1;
 		int possible_next_pos;
-		// System.out.println("hello");
+		st.push(current);
 		while (!st.isEmpty()) {
+			next_pos = -1;
 			// after we got to goal position
 			if (cmaze.maze_index(current % cmaze.get_width(),
 					current / cmaze.get_width()) == '.') {
 				current = parent[current];
+				++pathcost;
 				while (cmaze.maze_index(current % cmaze.get_width(), current
 						/ cmaze.get_width()) != 'P') {
 					++pathcost;
@@ -41,7 +45,10 @@ public class Maze_pathFinding {
 							/ cmaze.get_width(), '.');
 					current = parent[current];
 				}
-				return 1;
+				System.out.println();
+				System.out.println("pathcost:" + pathcost);
+				System.out.println("number of nodes:" + n_node);
+				return 0;
 			} 
 			else {
 				visited[current] = 1;
@@ -49,37 +56,66 @@ public class Maze_pathFinding {
 					possible_next_pos = current -1;
 					if (cmaze.maze_index(possible_next_pos % cmaze.get_width(),
 							possible_next_pos / cmaze.get_width()) != '%' && 
-							cmaze.maze_index(possible_next_pos % cmaze.get_width(),
-									possible_next_pos / cmaze.get_width()) != '%' )
-						next_pos = current - 1;
-					if (cmaze.maze_index(
-							(current - cmaze.get_width()) % cmaze.get_width(),
-							(current - cmaze.get_width()) / cmaze.get_width()) != '%') {
-						if (next_pos == -1)
-							next_pos = current - cmaze.get_width();
-						else if (Mdist[current - cmaze.get_width()] < Mdist[next_pos])
-							next_pos = current - cmaze.get_width();
+							visited[possible_next_pos] != 1 ){
+						next_pos = possible_next_pos;
+						++ n_node;
 					}
-					if (cmaze.maze_index((current + 1) % cmaze.get_width(),
-							(current + 1) / cmaze.get_width()) != '%') {
-						if (next_pos == -1)
-							next_pos = current + 1;
-						else if (Mdist[current + 1] < Mdist[next_pos])
-							next_pos = current + 1;
-					}
+				}	
+				if(current - cmaze.get_width() > 0){
+					possible_next_pos = current - cmaze.get_width();
 					if (cmaze.maze_index(
-							(current + cmaze.get_width()) % cmaze.get_width(),
-							(current + cmaze.get_width()) / cmaze.get_width()) != '%') {
+							possible_next_pos % cmaze.get_width(),
+							possible_next_pos / cmaze.get_width()) != '%'
+							&& visited[possible_next_pos] != 1 ) {
 						if (next_pos == -1)
-							next_pos = current + cmaze.get_width();
-						else if (Mdist[current + cmaze.get_width()] < Mdist[next_pos])
-							next_pos = current + cmaze.get_width();
+							next_pos = possible_next_pos;
+						else if (Mdist[possible_next_pos] < Mdist[next_pos])
+							next_pos = possible_next_pos;
+						++ n_node;
+					}
+				}	
+				if(current + 1 < mazeSize){
+					possible_next_pos = current + 1;
+					if (cmaze.maze_index(possible_next_pos % cmaze.get_width(),
+							possible_next_pos / cmaze.get_width()) != '%'
+							&&visited[possible_next_pos] != 1) {
+						if (next_pos == -1)
+							next_pos = possible_next_pos;
+						else if (Mdist[possible_next_pos] < Mdist[next_pos])
+							next_pos = possible_next_pos;
+						++n_node;
+					}
+				}	
+				if(current + cmaze.get_width() < mazeSize){	
+					possible_next_pos = current + cmaze.get_width();
+					if (cmaze.maze_index(
+							possible_next_pos % cmaze.get_width(),
+							possible_next_pos / cmaze.get_width()) != '%'
+							&& visited[possible_next_pos] != 1) {
+						if (next_pos == -1)
+							next_pos = possible_next_pos;
+						else if (Mdist[possible_next_pos] < Mdist[next_pos])
+							next_pos =possible_next_pos;
+						++n_node;
 					}
 				}
-			}
-		}
-		return 0;
-	}
+				
+				if(next_pos == -1)
+				{
+					current = (Integer) st.peek();
+					st.pop(); 
+				}
+				
+				else 
+				{
+					parent[next_pos] = current;
+					st.push(current);
+					current = next_pos;
+				}
+			}		
+	 }
+	return -1;
+}
 
 	public int SolveMazeAStar(Maze cmaze) {
 		int[] Mdist = new int[cmaze.get_width() * cmaze.get_height()];
@@ -100,99 +136,129 @@ public class Maze_pathFinding {
 	}
 
 	/*
-	 * input - current maze return 0 - if success, -1 if fail solve the maze
-	 * with greedy best first search algorithm
+	 * input: cmaze - currentmaze  
+	 * turn_cost - how many does fm_cost - how many does go forward cost 
+	 * return: 0 - if success, -1 if fail 
+	 * solve a maze penalizeing turns with greedy best first algorithm
 	 */
-	public int penalize_SolveMazeGBFS(Maze cmaze, int turn_cost, int fm_cost) {
-		// initialize
-		int[] Mdist = new int[cmaze.get_width() * cmaze.get_height()];
+	public int penalize_SolveMazeGBFS(Maze cmaze,int turn_cost,int fm_cost) {
+		Stack st = new Stack();
+		int mazeSize = cmaze.get_width() * cmaze.get_height();
+		int[] parent = new int[mazeSize];
+		int[] visited = new int[mazeSize];
+		int[] Mdist = new int[mazeSize];
 		int goalstate = cmaze.get_goal_state();
 		int pathcost = 0;
-		int n_node = 0;
+		int n_node = 1;
 		char last_dir;
-		cmaze.fill_in_maze(goalstate % cmaze.get_width(),
-				goalstate / cmaze.get_width(), 'g');
 		for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
 			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_width()) != '%')
-				Mdist[i] = cmaze.manhattan_distance(
-						goalstate % cmaze.get_width(),
-						goalstate / cmaze.get_width(), i % cmaze.get_width(), i
+				Mdist[i] = Math.abs(goalstate % cmaze.get_width() - i
+						% cmaze.get_width())
+						+ Math.abs(goalstate / cmaze.get_width() - i
 								/ cmaze.get_width());
-			else
-				Mdist[i] = -1;
 		}
-		int start_pos = cmaze.get_start_state();
-		int current = start_pos;
+		int current = cmaze.get_start_state();
 		int next_pos = -1;
-		// System.out.println("hello");
-		while (cmaze.maze_index(current % cmaze.get_width(),
-				current / cmaze.get_width()) != 'g') {
-			if (cmaze.maze_index((current - 1) % cmaze.get_width(),
-					(current - 1) / cmaze.get_width()) != '%')
-				next_pos = current - 1;
-			if (cmaze.maze_index(
-					(current - cmaze.get_width()) % cmaze.get_width(),
-					(current - cmaze.get_width()) / cmaze.get_width()) != '%') {
-				if (next_pos == -1)
-					next_pos = current - cmaze.get_width();
-				else if (Mdist[current - cmaze.get_width()] < Mdist[next_pos])
-					next_pos = current - cmaze.get_width();
-			}
-			if (cmaze.maze_index((current + 1) % cmaze.get_width(),
-					(current + 1) / cmaze.get_width()) != '%') {
-				if (next_pos == -1)
-					next_pos = current + 1;
-				else if (Mdist[current + 1] < Mdist[next_pos])
-					next_pos = current + 1;
-			}
-			if (cmaze.maze_index(
-					(current + cmaze.get_width()) % cmaze.get_width(),
-					(current + cmaze.get_width()) / cmaze.get_width()) != '%') {
-				if (next_pos == -1)
-					next_pos = current + cmaze.get_width();
-				else if (Mdist[current + cmaze.get_width()] < Mdist[next_pos])
-					next_pos = current + cmaze.get_width();
-			}
-			if (next_pos == -1)
-				return -1;
-			last_dir = 'E';
-			cmaze.find_dir(current, next_pos);
-			if (last_dir != cmaze.get_dir())
-				pathcost = pathcost + fm_cost + turn_cost;
-			// check for go back(only possible at the beginning)
-			if (current == start_pos && cmaze.get_dir() == 'W')
-				pathcost += turn_cost;
-
-			last_dir = cmaze.get_dir();
-			current = next_pos;
-			n_node += 1;
-			// System.out.println(cmaze.maze_index(next_pos %
-			// cmaze.get_width(),next_pos / cmaze.get_height()));
-			if (cmaze.maze_index(current % cmaze.get_width(),
-					current / cmaze.get_width()) == '.') {
-				if (current != goalstate)
-
-					System.out.println();
-				System.out.print("pathcost:");
-				System.out.print(pathcost);
+		int possible_next_pos;
+		st.push(current);
+		while (!st.isEmpty()) {
+			next_pos = -1;
+			// after we got to goal position
+			if (cmaze.maze_index(current % cmaze.get_width(),current / cmaze.get_width()) == '.') {
+				last_dir = cmaze.get_dir();
+				current = parent[current];
+				pathcost += fm_cost;
+				while (cmaze.maze_index(current % cmaze.get_width(), current / cmaze.get_width()) != 'P') {
+					cmaze.find_dir(parent[current], current);
+					if (last_dir != cmaze.get_dir())
+						pathcost = pathcost + fm_cost + turn_cost;
+					else
+						pathcost += fm_cost;
+					last_dir = cmaze.get_dir();
+					cmaze.fill_in_maze(current % cmaze.get_width(), current
+							/ cmaze.get_width(), '.');
+					current = parent[current];
+				}
+				if (last_dir != 'E') 
+					pathcost += turn_cost;
 				System.out.println();
-				System.out.print("number of nodes:");
-				System.out.print(n_node);
-				System.out.println();
-				return -1;
-			}
-			cmaze.fill_in_maze(current % cmaze.get_width(),
-					current / cmaze.get_width(), '.');
+				System.out.println("pathcost:" + pathcost);
+				System.out.println("number of nodes:" + n_node);
+				return 0;
+			} 
+			else {
+				visited[current] = 1;
+				if(current - 1 > 0){
+					possible_next_pos = current -1;
+					if (cmaze.maze_index(possible_next_pos % cmaze.get_width(),
+							possible_next_pos / cmaze.get_width()) != '%' && 
+							visited[possible_next_pos] != 1 ){
+						next_pos = possible_next_pos;
+						++ n_node;
+					}
+				}	
+				if(current - cmaze.get_width() > 0){
+					possible_next_pos = current - cmaze.get_width();
+					if (cmaze.maze_index(
+							possible_next_pos % cmaze.get_width(),
+							possible_next_pos / cmaze.get_width()) != '%'
+							&& visited[possible_next_pos] != 1 ) {
+						if (next_pos == -1)
+							next_pos = possible_next_pos;
+						else if (Mdist[possible_next_pos] < Mdist[next_pos])
+							next_pos = possible_next_pos;
+						++ n_node;
+					}
+				}	
+				if(current + 1 < mazeSize){
+					possible_next_pos = current + 1;
+					if (cmaze.maze_index(possible_next_pos % cmaze.get_width(),
+							possible_next_pos / cmaze.get_width()) != '%'
+							&&visited[possible_next_pos] != 1) {
+						if (next_pos == -1)
+							next_pos = possible_next_pos;
+						else if (Mdist[possible_next_pos] < Mdist[next_pos])
+							next_pos = possible_next_pos;
+						++n_node;
+					}
+				}	
+				if(current + cmaze.get_width() < mazeSize){	
+					possible_next_pos = current + cmaze.get_width();
+					if (cmaze.maze_index(
+							possible_next_pos % cmaze.get_width(),
+							possible_next_pos / cmaze.get_width()) != '%'
+							&& visited[possible_next_pos] != 1) {
+						if (next_pos == -1)
+							next_pos = possible_next_pos;
+						else if (Mdist[possible_next_pos] < Mdist[next_pos])
+							next_pos =possible_next_pos;
+						++n_node;
+					}
+				}
+				
+				if(next_pos == -1)
+				{
+					current = (Integer) st.peek();
+					st.pop(); 
+				}
+				
+				else 
+				{
+					parent[next_pos] = current;
+					st.push(current);
+					current = next_pos;
+				}
+			}		
+	 }
+	return -1;
+}
 
-		}
-
-		return 0;
-	}
 
 	/*
-	 * input: cmaze - current maze, startpos - an integer represent the startpos
-	 * of the "player" return: 1 - if success, 0 if fail solve the maze with
-	 * depth first search algorithm
+	 * input: cmaze - current maze, startpos - an integer represent the startposof the "player" 
+	 * return: 0 - if success, -1 if fail 
+	 * solve the maze with depth first search algorithm
 	 */
 	public int SolveMazeDFS(Maze cmaze, int startpos) {
 		Stack st = new Stack();
@@ -204,13 +270,13 @@ public class Maze_pathFinding {
 		int nextpos;
 		int n_node = 1;
 		int pathcost = 0;
+		char lastdir;
 		st.push(start);
 		while (!st.isEmpty()) {
 			// pop one "node" from stack
 			current = (Integer) st.peek();
 			st.pop();
-			// after we got to goal position,print out the route and count
-			// pathcost
+			// after we got to goal position,print out the route and count pathcost
 			if (cmaze.maze_index(current % cmaze.get_width(),
 					current / cmaze.get_width()) == '.') {
 				current = parent[current];
@@ -229,7 +295,7 @@ public class Maze_pathFinding {
 				System.out.print("number of nodes:");
 				System.out.print(n_node);
 				System.out.println();
-				return 1;
+				return 0;
 			}
 			// traverse the maze
 			else {
@@ -278,14 +344,14 @@ public class Maze_pathFinding {
 				}
 			}
 		}
-		return 0;
+		return -1;
 	}
 
 	/*
-	 * input: cmaze - current maze, startpos - an integer represent the startpos
-	 * of the "player" turn_cost - how many does turn cost forward - how many
-	 * does go forward cost return: 1 - if success, 0 if fail solve a maze
-	 * penalizeing turns with depth first search algorithm
+	 * input: cmaze - current maze, startpos - an integer represent the startpos of the "player" 
+	 * turn_cost - how many does fm_cost - how many does go forward cost 
+	 * return: 0 - if success, -1 if fail 
+	 * solve a maze penalizeing turns with depth first search algorithm
 	 */
 	public int penalize_SolveMazeDFS(Maze cmaze, int startpos, int turn_cost,
 			int fm_cost) {
@@ -304,8 +370,7 @@ public class Maze_pathFinding {
 		while (!st.isEmpty()) {
 			current = (Integer) st.peek();
 			st.pop();
-			// after we got to goal position,count the path cost and draw the
-			// route
+			// after we got to goal position,count the path cost and draw the route
 			if (cmaze.maze_index(current % cmaze.get_width(),
 					current / cmaze.get_width()) == '.') {
 				cmaze.find_dir(parent[current], current);
@@ -338,7 +403,7 @@ public class Maze_pathFinding {
 				System.out.print("number of nodes:");
 				System.out.print(n_node);
 				System.out.println();
-				return 1;
+				return 0;
 			}
 			// traverse the maze
 			else {
@@ -387,13 +452,13 @@ public class Maze_pathFinding {
 				}
 			}
 		}
-		return 0;
+		return -1;
 	}
 
 	/*
-	 * input: cmaze - current maze, startpos - an integer represent the startpos
-	 * of the "player" return: 1 - if success, 0 if fail solve the maze with
-	 * breadth first search algorithm
+	 * input: cmaze - current maze, startpos - an integer represent the startposof the "player" 
+	 * return: 0 - if success, -1 if fail 
+	 * solve the maze with breadth first search algorithm
 	 */
 	public int SolveMazeBFS(Maze cmaze, int startpos) {
 		Queue<Integer> queue = new LinkedList<Integer>();
@@ -429,7 +494,7 @@ public class Maze_pathFinding {
 				System.out.print("number of nodes:");
 				System.out.print(n_node);
 				System.out.println();
-				return 1;
+				return 0;
 			}
 			// traverse the maze
 			else {
@@ -477,14 +542,14 @@ public class Maze_pathFinding {
 				}
 			}
 		}
-		return 0;
+		return -1;
 	}
 
 	/*
-	 * input: cmaze - current maze, startpos - an integer represent the startpos
-	 * of the "player" turn_cost - how many does turn cost fm_cost - how many
-	 * does go forward cost return: 1 - if success, 0 if fail solve a maze
-	 * penalizing turns with breadth first search algorithm
+	 * input: cmaze - current maze, startpos - an integer represent the startpos of the "player" 
+	 * 		  turn_cost - how many does turn cost fm_cost - how many does go forward cost 
+	 * return: 0 - if success, -1 if fail 
+	 * solve a maze penalizing turns with breadth first search algorithm
 	 */
 	public int penalize_SolveMazeBFS(Maze cmaze, int startpos, int turn_cost,
 			int fm_cost) {
@@ -502,8 +567,7 @@ public class Maze_pathFinding {
 		char last_dir;
 		while (!queue.isEmpty()) {
 			current = queue.remove();
-			// after we got to goal position,count the pathcost and draw the
-			// path
+			// after we got to goal position,count the pathcost and draw the path
 			if (cmaze.maze_index(current % cmaze.get_width(),
 					current / cmaze.get_width()) == '.') {
 				cmaze.find_dir(parent[current], current);
@@ -532,7 +596,7 @@ public class Maze_pathFinding {
 				System.out.print("number of nodes:");
 				System.out.print(n_node);
 				System.out.println();
-				return 1;
+				return 0;
 			}
 			// traverse the maze
 			else {
@@ -580,7 +644,7 @@ public class Maze_pathFinding {
 				}
 			}
 		}
-		return 0;
+		return -1;
 	}
 
 }

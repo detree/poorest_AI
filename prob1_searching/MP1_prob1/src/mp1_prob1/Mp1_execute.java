@@ -32,6 +32,15 @@ public class Mp1_execute {
 //		}
 //		
 		
+		solvemaze.penalize_SolveMazeGBFS(new_maze,2,1);
+		System.out.println("penalize_greedy");
+		for(int j = 0; j < new_maze.get_height();j++){
+			for(int i = 0;i < new_maze.get_width();i++)
+				System.out.print(new_maze.maze_index(i,j));
+			System.out.println();
+		}
+		
+		
 //		solvemaze.penalize_SolveMazeBFS(new_maze,new_maze.get_start_state(),2,1);
 //		System.out.println("BFS");
 //		for(int j = 0; j < new_maze.get_height();j++){

@@ -27,6 +27,7 @@ public class Maze_pathFinding {
 		}
 		int current = cmaze.get_start_state();
 		int next_pos = -1;
+		int possible_next_pos;
 		// System.out.println("hello");
 		while (!st.isEmpty()) {
 			// after we got to goal position
@@ -41,12 +42,15 @@ public class Maze_pathFinding {
 					current = parent[current];
 				}
 				return 1;
-			} else {
+			} 
+			else {
 				visited[current] = 1;
-				while (cmaze.maze_index(current % cmaze.get_width(), current
-						/ cmaze.get_width()) != 'g') {
-					if (cmaze.maze_index((current - 1) % cmaze.get_width(),
-							(current - 1) / cmaze.get_width()) != '%')
+				if(current - 1 > 0){
+					possible_next_pos = current -1;
+					if (cmaze.maze_index(possible_next_pos % cmaze.get_width(),
+							possible_next_pos / cmaze.get_width()) != '%' && 
+							cmaze.maze_index(possible_next_pos % cmaze.get_width(),
+									possible_next_pos / cmaze.get_width()) != '%' )
 						next_pos = current - 1;
 					if (cmaze.maze_index(
 							(current - cmaze.get_width()) % cmaze.get_width(),

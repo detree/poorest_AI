@@ -167,7 +167,7 @@ public class Maze{
 	public char get_dir()
 	{
 		return this.dir;
-	}
+	} 
 	
 	public void find_dir(int cur,int next)
 	{

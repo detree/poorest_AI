@@ -9,6 +9,7 @@ package mp1_prob1;
 // libraries
 import java.io.*;
 import java.util.*;
+
 //import java.util.Arrays;
 public class Maze{
 	
@@ -18,30 +19,31 @@ public class Maze{
 	static int maze_height = 0;
 	static int[] maze_position = new int[2]; /* 0: start state; 1: goal state */
 	static char dir;
-	
+
 	/*
-	 * Constructor of maze. It will read the default file and create an array that store the information of the maze
+	 * Constructor of maze. It will read the default file and create an array
+	 * that store the information of the maze
 	 */
 	public Maze() {
 		BufferedReader br = null;
-		
-		/*open maze.txt */
+
+		/* open maze.txt */
 		try {
 			br = new BufferedReader(new FileReader("mediumMaze.txt"));
-			
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		/* read the maze from maze.txt and store it line by line */
 		try {
 			String temp_maze = null;
-			while( (line = br.readLine()) != null){
+			while ((line = br.readLine()) != null) {
 				maze_width = line.length();
 				maze_height++;
 				System.out.println(line);
-				if(temp_maze == null)
+				if (temp_maze == null)
 					temp_maze = line;
 				else
 					temp_maze = temp_maze.concat(line);
@@ -51,8 +53,9 @@ public class Maze{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		//System.out.println("width = " + maze_width + " maze_height = "+maze_height);
+
+		// System.out.println("width = " + maze_width +
+		// " maze_height = "+maze_height);
 		/* close bufferedRead */
 		try {
 			br.close();
@@ -60,105 +63,102 @@ public class Maze{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		/* store start state and goal state */
 		maze_position[0] = search('P');
 		maze_position[1] = search('.');
-		//fill_in_maze(0,0,'a');
-		//System.out.println(maze_read[maze_position[0]] + " " + maze_read[maze_position[1]]);
-		//System.out.println(maze_read.length);
+		// fill_in_maze(0,0,'a');
+		// System.out.println(maze_read[maze_position[0]] + " " +
+		// maze_read[maze_position[1]]);
+		// System.out.println(maze_read.length);
 		System.out.println();
 		System.out.println("Maze read in: ");
-		for(int j=0; j < maze_height; j++){
-			for(int i= 0; i < maze_width; i++){
-				System.out.print(maze_index(i,j));
+		for (int j = 0; j < maze_height; j++) {
+			for (int i = 0; i < maze_width; i++) {
+				System.out.print(maze_index(i, j));
 			}
 			System.out.println();
 		}
-		
+
 	}
-	
+
 	/*
-	 * input: x - width, y - height
-	 * return: the char at specified index (x, y).
+	 * input: x - width, y - height return: the char at specified index (x, y).
 	 */
-	public static char maze_index(int x, int y) {
-		if (x<0 || y <0 || x >= maze_width || y >= maze_height) {
+	public char maze_index(int x, int y) {
+		if (x < 0 || y < 0 || x >= maze_width || y >= maze_height) {
 			System.out.println("Out of bound");
 			return 'a';
 		}
-		//System.out.println(maze_read.charAt(x + y * maze_width));
+		// System.out.println(maze_read.charAt(x + y * maze_width));
 		return maze_read[x + y * maze_width];
 	}
-	
+
 	/*
-	 * input: none
-	 * return: width of the maze
+	 * input: none return: width of the maze
 	 */
-	public static int get_width(){
+	public int get_width() {
 		return maze_width;
 	}
-	
+
 	/*
-	 * input: none
-	 * return: height of the maze
+	 * input: none return: height of the maze
 	 */
-	public static int get_height(){
+	public int get_height() {
 		return maze_height;
 	}
-	
+
 	/*
-	 * input: none
-	 * return: index of the start state
+	 * input: none return: index of the start state
 	 */
-	public static int get_start_state(){
+	public int get_start_state() {
 		return maze_position[0];
 	}
-	
+
 	/*
-	 * input: none
-	 * return: index of the goal state
+	 * input: none return: index of the goal state
 	 */
-	public static int get_goal_state(){
+	public int get_goal_state() {
 		return maze_position[1];
 	}
-	
+
 	/*
-	 * input: x - width, y - height, content - the char to be filled in
-	 * return: none
+	 * input: x - width, y - height, content - the char to be filled in return:
+	 * none
 	 */
-	public void fill_in_maze(int x, int y, char content){
+	public void fill_in_maze(int x, int y, char content) {
 		maze_read[x + y * maze_width] = content;
 	}
-	
+
 	/*
-	 * input: the char to be searches
-	 * return: the first occurrence of that char
+	 * input: the char to be searches return: the first occurrence of that char
 	 */
-	public int search(char c){
-		for(int i = 0; i < maze_read.length; i++){
-			if(maze_read[i] == c)
+	public int search(char c) {
+		for (int i = 0; i < maze_read.length; i++) {
+			if (maze_read[i] == c)
 				return i;
 		}
 		return -1;
 	}
-	
-	public int manhattan_distance(int x1, int y1, int x2, int y2){
+
+	public int manhattan_distance(int x1, int y1, int x2, int y2) {
+
 		int ret_distance = 0;
-		
-		if(x1 - x2 < 0)
+
+		if (x1 - x2 < 0)
 			ret_distance += (x2 - x1);
 		else
 			ret_distance += (x1 - x2);
-	
-		if(y1 - y2 < 0)
+
+		if (y1 - y2 < 0)
 			ret_distance += (y2 - y1);
 		else
 			ret_distance += (y1 - y2);
-		
+
 		return ret_distance;
 	}
 	
+
 	public void set_dir(char c)
 	{
 		this.dir = c;

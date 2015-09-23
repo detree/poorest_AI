@@ -18,12 +18,8 @@ public class Maze{
 	static int maze_width = 0;
 	static int maze_height = 0;
 	static int[] maze_position = new int[2]; /* 0: start state; 1: goal state */
-<<<<<<< HEAD
-
-=======
 	static char dir;
-	
->>>>>>> origin/master
+
 	/*
 	 * Constructor of maze. It will read the default file and create an array
 	 * that store the information of the maze
@@ -144,13 +140,9 @@ public class Maze{
 		}
 		return -1;
 	}
-<<<<<<< HEAD
 
 	public int manhattan_distance(int x1, int y1, int x2, int y2) {
-=======
-	
-	public int manhattan_distance(int x1, int y1, int x2, int y2){
->>>>>>> origin/master
+
 		int ret_distance = 0;
 
 		if (x1 - x2 < 0)
@@ -166,8 +158,7 @@ public class Maze{
 		return ret_distance;
 	}
 	
-<<<<<<< HEAD
-=======
+
 	public void set_dir(char c)
 	{
 		this.dir = c;
@@ -176,7 +167,7 @@ public class Maze{
 	public char get_dir()
 	{
 		return this.dir;
-	}
+	} 
 	
 	public void find_dir(int cur,int next)
 	{
@@ -189,5 +180,4 @@ public class Maze{
 		else if(next - cur == -maze_width)
 			this.dir = 'N';
 	}
->>>>>>> origin/master
 }

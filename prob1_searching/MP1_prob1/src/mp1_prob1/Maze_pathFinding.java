@@ -6,6 +6,81 @@ import java.util.Stack;
 
 public class Maze_pathFinding {
 
+	/*
+	 * input - current maze return 0 - if success, -1 if fail solve the maze
+	 * with greedy best first algorithm
+	 */
+	public int SolveMazeGBFS(Maze cmaze) {
+		Stack st = new Stack();
+		int mazeSize = cmaze.get_width() * cmaze.get_height();
+		int[] parent = new int[mazeSize];
+		char[] visited = new char[mazeSize];
+		int[] Mdist = new int[mazeSize];
+		int goalstate = cmaze.get_goal_state();
+		int pathcost = 0;
+		for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
+			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_width()) != '%')
+				Mdist[i] = Math.abs(goalstate % cmaze.get_width() - i
+						% cmaze.get_width())
+						+ Math.abs(goalstate / cmaze.get_width() - i
+								/ cmaze.get_width());
+		}
+		int current = cmaze.get_start_state();
+		int next_pos = -1;
+		int possible_next_pos;
+		// System.out.println("hello");
+		while (!st.isEmpty()) {
+			// after we got to goal position
+			if (cmaze.maze_index(current % cmaze.get_width(),
+					current / cmaze.get_width()) == '.') {
+				current = parent[current];
+				while (cmaze.maze_index(current % cmaze.get_width(), current
+						/ cmaze.get_width()) != 'P') {
+					++pathcost;
+					cmaze.fill_in_maze(current % cmaze.get_width(), current
+							/ cmaze.get_width(), '.');
+					current = parent[current];
+				}
+				return 1;
+			} 
+			else {
+				visited[current] = 1;
+				if(current - 1 > 0){
+					possible_next_pos = current -1;
+					if (cmaze.maze_index(possible_next_pos % cmaze.get_width(),
+							possible_next_pos / cmaze.get_width()) != '%' && 
+							cmaze.maze_index(possible_next_pos % cmaze.get_width(),
+									possible_next_pos / cmaze.get_width()) != '%' )
+						next_pos = current - 1;
+					if (cmaze.maze_index(
+							(current - cmaze.get_width()) % cmaze.get_width(),
+							(current - cmaze.get_width()) / cmaze.get_width()) != '%') {
+						if (next_pos == -1)
+							next_pos = current - cmaze.get_width();
+						else if (Mdist[current - cmaze.get_width()] < Mdist[next_pos])
+							next_pos = current - cmaze.get_width();
+					}
+					if (cmaze.maze_index((current + 1) % cmaze.get_width(),
+							(current + 1) / cmaze.get_width()) != '%') {
+						if (next_pos == -1)
+							next_pos = current + 1;
+						else if (Mdist[current + 1] < Mdist[next_pos])
+							next_pos = current + 1;
+					}
+					if (cmaze.maze_index(
+							(current + cmaze.get_width()) % cmaze.get_width(),
+							(current + cmaze.get_width()) / cmaze.get_width()) != '%') {
+						if (next_pos == -1)
+							next_pos = current + cmaze.get_width();
+						else if (Mdist[current + cmaze.get_width()] < Mdist[next_pos])
+							next_pos = current + cmaze.get_width();
+					}
+				}
+			}
+		}
+		return 0;
+	}
+
 	public int SolveMazeAStar(Maze cmaze) {
 		int[] Mdist = new int[cmaze.get_width() * cmaze.get_height()];
 		int goal_state = cmaze.get_goal_state();
@@ -22,82 +97,6 @@ public class Maze_pathFinding {
 		}
 
 		return 1;
-	}
-
-	/*
-	 * input - current maze return 0 - if success, -1 if fail solve the maze
-	 * with greedy best first search algorithm
-	 */
-	public int SolveMazeGBFS(Maze cmaze) {
-		// initialize
-		int[] Mdist = new int[cmaze.get_width() * cmaze.get_height()];
-		int goalstate = cmaze.get_goal_state();
-		int pathcost = 0;
-		// mark the goal so it is not '.'
-		cmaze.fill_in_maze(goalstate % cmaze.get_width(),
-				goalstate / cmaze.get_width(), 'g');
-		// use heuristic funtion to make a table
-		for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
-			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_width()) != '%')
-				Mdist[i] = cmaze.manhattan_distance(
-						goalstate % cmaze.get_width(),
-						goalstate / cmaze.get_width(), i % cmaze.get_width(), i
-								/ cmaze.get_width());
-			else
-				Mdist[i] = -1;
-		}
-		int current = cmaze.get_start_state();
-		int next_pos = -1;
-
-		while (cmaze.maze_index(current % cmaze.get_width(),
-				current / cmaze.get_width()) != 'g') {
-			// find next position
-			if (cmaze.maze_index((current - 1) % cmaze.get_width(),
-					(current - 1) / cmaze.get_width()) != '%')
-				next_pos = current - 1;
-			if (cmaze.maze_index(
-					(current - cmaze.get_width()) % cmaze.get_width(),
-					(current - cmaze.get_width()) / cmaze.get_width()) != '%') {
-				if (next_pos == -1)
-					next_pos = current - cmaze.get_width();
-				else if (Mdist[current - cmaze.get_width()] < Mdist[next_pos])
-					next_pos = current - cmaze.get_width();
-			}
-			if (cmaze.maze_index((current + 1) % cmaze.get_width(),
-					(current + 1) / cmaze.get_width()) != '%') {
-				if (next_pos == -1)
-					next_pos = current + 1;
-				else if (Mdist[current + 1] < Mdist[next_pos])
-					next_pos = current + 1;
-			}
-			if (cmaze.maze_index(
-					(current + cmaze.get_width()) % cmaze.get_width(),
-					(current + cmaze.get_width()) / cmaze.get_width()) != '%') {
-				if (next_pos == -1)
-					next_pos = current + cmaze.get_width();
-				else if (Mdist[current + cmaze.get_width()] < Mdist[next_pos])
-					next_pos = current + cmaze.get_width();
-			}
-			current = next_pos;
-			// if the closest place is somewhere we already visited, GFBS is
-			// failed.
-			if (cmaze.maze_index(current % cmaze.get_width(),
-					current / cmaze.get_width()) == '.') {
-				System.out.println();
-				System.out.print("pathcost:");
-				System.out.print(pathcost);
-				System.out.println();
-				System.out.print("number of nodes:");
-				System.out.print(pathcost);
-				System.out.println();
-				return -1;
-			}
-			cmaze.fill_in_maze(current % cmaze.get_width(),
-					current / cmaze.get_width(), '.');
-			pathcost++;
-		}
-		// successfully find the goal
-		return 0;
 	}
 
 	/*

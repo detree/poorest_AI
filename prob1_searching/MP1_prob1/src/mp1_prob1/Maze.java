@@ -72,13 +72,13 @@ public class Maze{
 		// maze_read[maze_position[1]]);
 		// System.out.println(maze_read.length);
 		System.out.println();
-		System.out.println("Maze read in: ");
+		/*System.out.println("Maze read in: ");
 		for (int j = 0; j < maze_height; j++) {
 			for (int i = 0; i < maze_width; i++) {
 				System.out.print(maze_index(i, j));
 			}
 			System.out.println();
-		}
+		}*/
 
 	}
 

@@ -6,7 +6,14 @@ public class Mp1_execute {
 		// TODO Auto-generated method stub
 		Maze new_maze = new Maze();
 		Maze_pathFinding solvemaze =  new Maze_pathFinding(); 
-		
+		solvemaze.SolveMazeAStar(new_maze);
+		//solvemaze.SolveMazeBFS(new_maze,new_maze.get_start_state());
+		for (int j = 0; j < new_maze.get_height(); j++) {
+			for (int i = 0; i < new_maze.get_width(); i++) {
+				System.out.print(new_maze.maze_index(i, j));
+			}
+			System.out.println();
+		}
 //		solvemaze.SolveMazeBFS(new_maze,new_maze.get_start_state());
 //		System.out.println("bfs");
 //		for(int j = 0; j < new_maze.get_height();j++){

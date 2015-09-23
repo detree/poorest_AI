@@ -180,4 +180,120 @@ public class Maze{
 		else if(next - cur == -maze_width)
 			this.dir = 'N';
 	}
+	/*
+	 * input - none
+	 * purpose - return a heuristic function that represent the smallest number of vertical wall and horizontal wall from a point to the goal.
+	 * return - int[# of points in maze][2].
+	 */
+	public int[] heuristic_wall_count()
+	{
+		int y_max = get_height(), x_max = get_width();
+		int number_of_blocks = y_max * x_max;
+		int []ret = new int[number_of_blocks];
+		/*
+		 * [#][0] represents for a horizontal line, # of wall block it will encounter to the column of goal
+		 * [#][1] represents for a vertical line, # of wall block it will encounter to the row of goal
+		 */
+		int [][]val = new int[number_of_blocks][2];
+		int [][]mid = new int[number_of_blocks][2];
+		
+		
+		
+		//first we need to initialize the value of the blocks have same column/row with the GOAL point.
+		int goalx = this.get_goal_state() % x_max, goaly = this.get_goal_state() / x_max;
+		val[ this.get_goal_state() ][0] = 0;
+		val[ this.get_goal_state() ][1] = 0;
+		for(int x=goalx-1; x>=0; x--)
+		{
+			if( this.maze_index(x, goaly) == '%' )
+				val[x+goaly*x_max][0] = val[x+1+goaly*x_max][0] + 1;
+			else
+				val[x+goaly*x_max][0] = val[x+1+goaly*x_max][0];
+			val[x+goaly*x_max][1] = 0;
+		}
+		for(int x=goalx+1; x<=x_max; x++)
+		{
+			if( this.maze_index(x, goaly) == '%' )
+				val[x+goaly*x_max][0] = val[x-1+goaly*x_max][0] + 1;
+			else
+				val[x+goaly*x_max][0] = val[x-1+goaly*x_max][0];
+			val[x+goaly*x_max][1] = 0;
+		}
+		for(int y=goaly-1; y>=0; y--)
+		{
+			if( this.maze_index(goalx, y) == '%' )
+				val[goalx+y*x_max][1] = val[goalx+(y+1)*x_max][1] + 1;
+			else
+				val[goalx+y*x_max][1] = val[goalx+(y+1)*x_max][1];
+			val[goalx+y*x_max][0] = 0;
+		}
+		for(int y=goalx+1; y<=x_max; y++)
+		{
+			if( this.maze_index(goalx, y) == '%' )
+				val[goalx+y*x_max][1] = val[goalx+(y-1)*x_max][1] + 1;
+			else
+				val[goalx+y*x_max][1] = val[goalx+(y-1)*x_max][1];
+			val[goalx+y*x_max][0] = 0;
+		}
+		
+		//
+		for(int x = goalx-1; x>=0; x--)
+			for(int y = goaly-1; y>=0; y--)
+			{
+				if( this.maze_index(x, y) == '%' )
+				{
+					val[x+y*x_max][0] = val[x+1+y*x_max][0] + 1;
+					val[x+y*x_max][1] = val[x+(y+1)*x_max][1] + 1;
+				}
+				else
+				{
+					val[x+y*x_max][0] = val[x+1+y*x_max][0];
+					val[x+y*x_max][1] = val[x+(y+1)*x_max][1];
+				}
+			}
+		for(int x = goalx+1; x<=x_max; x++)
+			for(int y = goaly-1; y>=0; y--)
+			{
+				if( this.maze_index(x, y) == '%' )
+				{
+					val[x+y*x_max][0] = val[x-1+y*x_max][0] + 1;
+					val[x+y*x_max][1] = val[x+(y+1)*x_max][1] + 1;
+				}
+				else
+				{
+					val[x+y*x_max][0] = val[x-1+y*x_max][0];
+					val[x+y*x_max][1] = val[x+(y+1)*x_max][1];
+				}
+			}
+		for(int x = goalx-1; x>=0; x--)
+			for(int y = goaly+1; y<=y_max; y++)
+			{
+				if( this.maze_index(x, y) == '%' )
+				{
+					val[x+y*x_max][0] = val[x+1+y*x_max][0] + 1;
+					val[x+y*x_max][1] = val[x+(y-1)*x_max][1] + 1;
+				}
+				else
+				{
+					val[x+y*x_max][0] = val[x+1+y*x_max][0];
+					val[x+y*x_max][1] = val[x+(y-1)*x_max][1];
+				}
+			}
+		for(int x = goalx+1; x<=x_max; x++)
+			for(int y = goaly+1; y<=y_max; y++)
+			{
+				if( this.maze_index(x, y) == '%' )
+				{
+					val[x+y*x_max][0] = val[x-1+y*x_max][0] + 1;
+					val[x+y*x_max][1] = val[x+(y-1)*x_max][1] + 1;
+				}
+				else
+				{
+					val[x+y*x_max][0] = val[x-1+y*x_max][0];
+					val[x+y*x_max][1] = val[x+(y-1)*x_max][1];
+				}
+			}
+		
+		return ret;
+	}
 }

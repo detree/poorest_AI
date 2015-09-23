@@ -6,6 +6,23 @@ import java.util.Stack;
 
 public class Maze_pathFinding {
 	
+	public int SolveMazeAStar(Maze cmaze){
+		int [] Mdist = new int[cmaze.get_width() * cmaze.get_height()];
+		int goal_state = cmaze.get_goal_state();
+		int start_state = cmaze.get_start_state();
+		int path_cost = 0;
+		int [] total_cost = new int[cmaze.get_width() * cmaze.get_height()];
+		for(int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++){
+			if(cmaze.maze_index(i%cmaze.get_width(), i/cmaze.get_height()) == '%')
+				Mdist[i] = -1;
+			else
+				Mdist[i] = cmaze.manhattan_distance(i%cmaze.get_width(), i/cmaze.get_height(), goal_state%cmaze.get_width(), goal_state/cmaze.get_height());
+		}
+		
+		
+		return 1;
+	}
+	
 	public int SolveMazeGBFS(Maze cmaze){
 		int [] Mdist = new int[cmaze.get_width() * cmaze.get_height()];
 		int goalstate = cmaze.get_start_state();
@@ -48,7 +65,6 @@ public class Maze_pathFinding {
 					return 0;
 				cmaze.fill_in_maze(current%cmaze.get_width(),current/cmaze.get_width(),'.');
 		}
-		
 		return -1;
 	}
 	/* input cmaze - current maze, 

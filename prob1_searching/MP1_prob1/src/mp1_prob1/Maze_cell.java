@@ -24,7 +24,7 @@ public class Maze_cell implements Comparator<Maze_cell>{
 	}
 	
 	public int get_heuristic(){
-		return 0;//this.heuristic;
+		return this.heuristic;
 	}
 	
 	public int get_totalCost(){

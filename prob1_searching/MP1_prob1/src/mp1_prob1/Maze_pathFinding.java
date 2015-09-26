@@ -327,22 +327,22 @@ public class Maze_pathFinding {
 	{
 		if (cmaze == null) // if cmaze is null, fail
 			return -1;
-	
-		maze_cell_g cell1 = new maze_cell_g();
-		maze_cell_g cell2 = new maze_cell_g();
-		cell1.set_level(0);
-		cell1.set_parent(0);
-		cell1.set_totalCost(0);
-		cell1.set_ghost_pos(0);
-		cell1.set_ghost_dir(1);
-		cell2.set_level(0);
-		cell2.set_parent(0);
-		cell2.set_totalCost(0);
-		cell2.set_ghost_pos(0);
-		cell2.set_ghost_dir(0);
-		System.out.println("Test if equal:"+(cell1==cell2));
 		
-		/////////////////////////////////
+/////////////////////////////////////////
+maze_cell_g cell1 = new maze_cell_g();
+maze_cell_g cell2 = new maze_cell_g();
+cell1.set_level(0);
+cell1.set_parent(0);
+cell1.set_totalCost(0);
+cell1.set_ghost_pos(1);
+cell1.set_ghost_dir(0);
+cell2.set_level(0);
+cell2.set_parent(0);
+cell2.set_totalCost(0);
+cell2.set_ghost_pos(0);
+cell2.set_ghost_dir(0);
+System.out.println("Test if equal:"+(cell1==cell2));
+/////////////////////////////////////////
 		
 		int goal_state = cmaze.get_goal_state(); //end point in maze
 		int start_state = cmaze.get_start_state(); //start point in maze
@@ -388,7 +388,7 @@ public class Maze_pathFinding {
 			//calculate the ghost's next position.
 			if( curr.get_ghost_dir() == 0 )
 			{
-				gnextpos = curr.get_ghost_pos() - 1;
+				gnextpos = gcurrpos - 1;
 				gnextdir = 0;
 				if(cmaze.maze_index(gnextpos%width, gnextpos/width) == '%')
 				{
@@ -398,7 +398,7 @@ public class Maze_pathFinding {
 			}
 			else if( curr.get_ghost_dir() == 1 )
 			{
-				gnextpos = curr.get_ghost_pos() + 1;
+				gnextpos = gcurrpos + 1;
 				gnextdir = 1;
 				if(cmaze.maze_index(gnextpos%width, gnextpos/width) == '%')
 				{
@@ -410,14 +410,18 @@ public class Maze_pathFinding {
 			{
 				//TODO: throw exception.
 			}
+//System.out.println("ghost at("+gcurrpos%width+","+gcurrpos/width+"), next at("
+//		+gnextpos%width+","+gnextpos/width+")");
 			//check the four neighbors
 			//left point============================================================
 			nextpos = curr.get_index()-1;
+			if(curr.get_index() == gcurrpos)
+				System.out.println("Seems BIG ERROR in finding path");
 			if( nextpos>0 && visited[nextpos] != 'V' && cmaze.maze_index(nextpos%width, nextpos/width) != '%' )
 			{
 				//now without the ghost, this is a valid position. MAY NOT in the queue YET
 				
-				if( nextpos != gcurrpos && nextpos != gnextpos )
+				if( !( (nextpos == gcurrpos && curr.get_index() == gnextpos) || nextpos == gnextpos ) )
 				{
 					//now we know that this next position has no conflict with the ghost.
 					int new_totalcost= cells[nextpos]. get_heuristic() + curr.get_level() + 1;
@@ -435,6 +439,7 @@ public class Maze_pathFinding {
 						cells[nextpos]. set_ghost_dir(gnextdir);
 						cells[nextpos]. set_ghost_pos(gnextpos);
 						mc_que.add(cells[nextpos]);
+//System.out.println("P has next at("+nextpos%width+","+nextpos/width+")");
 					}
 				}
 			}
@@ -444,7 +449,7 @@ public class Maze_pathFinding {
 			{
 				//now without the ghost, this is a valid position. MAY NOT in the queue YET
 				
-				if( nextpos != gcurrpos && nextpos != gnextpos )
+				if( !( (nextpos == gcurrpos && curr.get_index() == gnextpos) || nextpos == gnextpos ) )
 				{
 					//now we know that this next position has no conflict with the ghost.
 					int new_totalcost= cells[nextpos]. get_heuristic() + curr.get_level() + 1;
@@ -462,6 +467,7 @@ public class Maze_pathFinding {
 						cells[nextpos]. set_ghost_dir(gnextdir);
 						cells[nextpos]. set_ghost_pos(gnextpos);
 						mc_que.add(cells[nextpos]);
+//System.out.println("P has next at("+nextpos%width+","+nextpos/width+")");
 					}
 				}
 			}
@@ -471,7 +477,7 @@ public class Maze_pathFinding {
 			{
 				//now without the ghost, this is a valid position. MAY NOT in the queue YET
 				
-				if( nextpos != gcurrpos && nextpos != gnextpos )
+				if( !( (nextpos == gcurrpos && curr.get_index() == gnextpos) || nextpos == gnextpos ) )
 				{
 					//now we know that this next position has no conflict with the ghost.
 					int new_totalcost= cells[nextpos]. get_heuristic() + curr.get_level() + 1;
@@ -489,6 +495,7 @@ public class Maze_pathFinding {
 						cells[nextpos]. set_ghost_dir(gnextdir);
 						cells[nextpos]. set_ghost_pos(gnextpos);
 						mc_que.add(cells[nextpos]);
+//System.out.println("P has next at("+nextpos%width+","+nextpos/width+")");
 					}
 				}
 			}
@@ -498,7 +505,7 @@ public class Maze_pathFinding {
 			{
 				//now without the ghost, this is a valid position. MAY NOT in the queue YET
 				
-				if( nextpos != gcurrpos && nextpos != gnextpos )
+				if( !( (nextpos == gcurrpos && curr.get_index() == gnextpos) || nextpos == gnextpos ) )
 				{
 					//now we know that this next position has no conflict with the ghost.
 					int new_totalcost= cells[nextpos]. get_heuristic() + curr.get_level() + 1;
@@ -516,6 +523,7 @@ public class Maze_pathFinding {
 						cells[nextpos]. set_ghost_dir(gnextdir);
 						cells[nextpos]. set_ghost_pos(gnextpos);
 						mc_que.add(cells[nextpos]);
+//System.out.println("P has next at("+nextpos%width+","+nextpos/width+")");
 					}
 				}
 			}

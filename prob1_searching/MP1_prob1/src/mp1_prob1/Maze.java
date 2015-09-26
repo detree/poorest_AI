@@ -10,6 +10,9 @@ package mp1_prob1;
 import java.io.*;
 import java.util.*;
 
+import com.sun.media.jai.opimage.MaxCRIF;
+
+
 //import java.util.Arrays;
 public class Maze{
 	
@@ -19,7 +22,17 @@ public class Maze{
 	static int maze_height = 0;
 	static int[] maze_position = new int[2]; /* 0: start state; 1: goal state */
 	static char dir;
-
+	private static final int LARGE_INT = 0xFFFFFFFF;
+	//general helper functions:
+	int max(int a, int b)
+	{
+		if (b>a) return b; else return a;
+	}
+	int min(int a, int b)
+	{
+		if (b<a) return b; else return a;
+	}
+	
 	/*
 	 * Constructor of maze. It will read the default file and create an array
 	 * that store the information of the maze
@@ -197,8 +210,6 @@ public class Maze{
 		int [][]val = new int[number_of_blocks][2];
 		int [][]mid = new int[number_of_blocks][2];
 		
-		
-		
 		//first we need to initialize the value of the blocks have same column/row with the GOAL point.
 		int goalx = this.get_goal_state() % x_max, goaly = this.get_goal_state() / x_max;
 		val[ this.get_goal_state() ][0] = 0;
@@ -210,6 +221,9 @@ public class Maze{
 			else
 				val[x+goaly*x_max][0] = val[x+1+goaly*x_max][0];
 			val[x+goaly*x_max][1] = 0;
+			
+			mid[x+goaly*x_max][0] = val[x+goaly*x_max][0];
+			mid[x+goaly*x_max][1] = LARGE_INT;
 		}
 		for(int x=goalx+1; x<=x_max; x++)
 		{
@@ -218,6 +232,9 @@ public class Maze{
 			else
 				val[x+goaly*x_max][0] = val[x-1+goaly*x_max][0];
 			val[x+goaly*x_max][1] = 0;
+			
+			mid[x+goaly*x_max][0] = val[x+goaly*x_max][0];
+			mid[x+goaly*x_max][1] = LARGE_INT;
 		}
 		for(int y=goaly-1; y>=0; y--)
 		{
@@ -226,6 +243,9 @@ public class Maze{
 			else
 				val[goalx+y*x_max][1] = val[goalx+(y+1)*x_max][1];
 			val[goalx+y*x_max][0] = 0;
+			
+			mid[goalx+y*x_max][0] = LARGE_INT;
+			mid[goalx+y*x_max][1] = val[goalx+y*x_max][1];
 		}
 		for(int y=goalx+1; y<=x_max; y++)
 		{
@@ -234,9 +254,13 @@ public class Maze{
 			else
 				val[goalx+y*x_max][1] = val[goalx+(y-1)*x_max][1];
 			val[goalx+y*x_max][0] = 0;
+			
+			mid[goalx+y*x_max][0] = LARGE_INT;
+			mid[goalx+y*x_max][1] = val[goalx+y*x_max][1];
 		}
 		
-		//
+		//=================================================================================
+		//values for helper function.
 		for(int x = goalx-1; x>=0; x--)
 			for(int y = goaly-1; y>=0; y--)
 			{
@@ -292,6 +316,33 @@ public class Maze{
 					val[x+y*x_max][0] = val[x-1+y*x_max][0];
 					val[x+y*x_max][1] = val[x+(y-1)*x_max][1];
 				}
+			}
+		
+		//=================================================================================
+		//values for non-combined final function.
+		for(int x = goalx-1; x>=0; x--)
+			for(int y = goaly-1; y>=0; y--)
+			{
+				mid[x+y*x_max][0] = min( mid[x+(y+1)*x_max][0], val[x+y*x_max][0]);
+				mid[x+y*x_max][1] = min( mid[x+1+y*x_max][1], val[x+y*x_max][1]);
+			}
+		for(int x = goalx+1; x<=x_max; x++)
+			for(int y = goaly-1; y>=0; y--)
+			{
+				mid[x+y*x_max][0] = min( mid[x+(y+1)*x_max][0], val[x+y*x_max][0]);
+				mid[x+y*x_max][1] = min( mid[x-1+y*x_max][1], val[x+y*x_max][1]);
+			}
+		for(int x = goalx-1; x>=0; x--)
+			for(int y = goaly+1; y<=y_max; y++)
+			{
+				mid[x+y*x_max][0] = min( mid[x+(y-1)*x_max][0], val[x+y*x_max][0]);
+				mid[x+y*x_max][1] = min( mid[x+1+y*x_max][1], val[x+y*x_max][1]);
+			}
+		for(int x = goalx+1; x<=x_max; x++)
+			for(int y = goaly+1; y<=y_max; y++)
+			{
+				mid[x+y*x_max][0] = min( mid[x+(y-1)*x_max][0], val[x+y*x_max][0]);
+				mid[x+y*x_max][1] = min( mid[x-1+y*x_max][1], val[x+y*x_max][1]);
 			}
 		
 		return ret;

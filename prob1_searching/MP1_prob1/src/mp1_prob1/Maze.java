@@ -20,7 +20,7 @@ public class Maze{
 	static char[] maze_read = null; /* the maze read from the txt file */
 	static int maze_width = 0;
 	static int maze_height = 0;
-	static int[] maze_position = new int[2]; /* 0: start state; 1: goal state */
+	static int[] maze_position = new int[3]; /* 0: start state; 1: goal state */
 	static char dir;
 	private static final int LARGE_INT = 0xFFFFFFFF;
 	//general helper functions:

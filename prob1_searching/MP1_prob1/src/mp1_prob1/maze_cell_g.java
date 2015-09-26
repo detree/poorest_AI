@@ -1,9 +1,20 @@
 package mp1_prob1;
 
-public class maze_cell_g extends Maze_cell{
+import java.util.Comparator;
+
+public class maze_cell_g extends Maze_cell implements Comparator<Maze_cell>{
 	private int ghost_pos;
 	private int ghost_dir;//0 for going to left and 1 for going to right
 
+	public maze_cell_g(int i, int h){
+		super(i,h);
+	}
+	public maze_cell_g(){
+		super();
+		ghost_pos = -1;
+		ghost_dir = -1;
+	}
+	
 	public int get_ghost_pos(){
 		return this.ghost_pos;
 	}

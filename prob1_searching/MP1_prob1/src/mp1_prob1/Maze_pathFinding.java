@@ -6,6 +6,8 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
 
+import javafx.geometry.Pos;
+
 public class Maze_pathFinding {
 
 	/*
@@ -320,6 +322,193 @@ public class Maze_pathFinding {
 		return 0;
 	}
 
+
+	public int Ghost_SolveMazeAStar(Maze cmaze)
+	{
+		if (cmaze == null) // if cmaze is null, fail
+			return -1;
+	
+		int goal_state = cmaze.get_goal_state(); //end point in maze
+		int start_state = cmaze.get_start_state(); //start point in maze
+		int ghost_start = cmaze.get_ghost_start();
+		int width = cmaze.get_width(), height = cmaze.get_height(), totaln = width*height;
+		char []visited = new char[totaln];
+	
+		//data structure for all of the cells in the maze
+		maze_cell_g []cells = new maze_cell_g[totaln];
+	
+		Comparator<Maze_cell> mc_comp = new maze_cell_g();
+		PriorityQueue<maze_cell_g> mc_que = 
+							new PriorityQueue<maze_cell_g>(totaln, mc_comp);
+	
+		//initialize maze cells
+		for (int i = 0; i < totaln; i++) {
+				if (cmaze.maze_index( i%width, i/width ) == '%')
+					cells[i] = new maze_cell_g(i, -1);
+				else
+					cells[i] = new maze_cell_g(i, cmaze.manhattan_distance
+							(i%width, i/width, goal_state%width, goal_state/width));
+			}
+	
+		//initialize the starting point and add it into the queue
+		cells[start_state].set_level(0);
+		cells[start_state].set_parent(start_state);
+		cells[start_state].set_totalCost(0);
+		cells[start_state].set_ghost_pos(ghost_start);
+		cells[start_state].set_ghost_dir(1);
+		mc_que.add( cells[start_state] );
+		
+		//the next while loop is for searching the path.
+		maze_cell_g curr = null;
+		int nextpos = -100;
+		int gnextpos = -100, gcurrpos = -100, gnextdir=-1;
+		int pathcost = 0;
+		while( mc_que.size() > 0 )
+		{
+			//get the current point need to be considered
+			curr = mc_que.poll();
+			visited[curr.get_index()] = 'V';
+			gcurrpos = curr.get_ghost_pos();
+			//calculate the ghost's next position.
+			if( curr.get_ghost_dir() == 0 )
+			{
+				gnextpos = curr.get_ghost_pos() - 1;
+				gnextdir = 0;
+				if(cmaze.maze_index(gnextpos%width, gnextpos/width) == '%')
+				{
+					gnextpos = gcurrpos + 1;
+					gnextdir = 1;
+				}
+			}
+			else if( curr.get_ghost_dir() == 1 )
+			{
+				gnextpos = curr.get_ghost_pos() + 1;
+				gnextdir = 1;
+				if(cmaze.maze_index(gnextpos%width, gnextpos/width) == '%')
+				{
+					gnextpos = gcurrpos - 1;
+					gnextdir = 0;
+				}
+			}
+			else
+			{
+				//TODO: throw exception.
+			}
+			//check the four neighbors
+			//left point============================================================
+			nextpos = curr.get_index()-1;
+			if( nextpos>0 && visited[nextpos] != 'V' && cmaze.maze_index(nextpos%width, nextpos/width) != '%' )
+			{
+				//now without the ghost, this is a valid position. MAY NOT in the queue YET
+				
+				if( nextpos != gcurrpos && nextpos != gnextpos )
+				{
+					//now we know that this next position has no conflict with the ghost.
+					int new_totalcost= cells[nextpos]. get_heuristic() + curr.get_level() + 1;
+					if( mc_que.contains( cells[nextpos] ) && new_totalcost < cells[nextpos].get_totalCost() )
+					{
+						//in this situation the queue has the next position, we need to check whether
+						//there is a shorter path to it. If there is, delete the previous one in the queue.
+						mc_que.remove( cells[nextpos] );
+					}
+					if( !mc_que.contains(cells[nextpos]) )
+					{
+						cells[nextpos]. set_parent(curr.get_index());
+						cells[nextpos]. set_level(curr.get_level() + 1);
+						cells[nextpos]. set_totalCost(new_totalcost);
+						cells[nextpos]. set_ghost_dir(gnextdir);
+						cells[nextpos]. set_ghost_pos(gnextpos);
+						mc_que.add(cells[nextpos]);
+					}
+				}
+			}
+			//right neighbor========================================================
+			nextpos = curr.get_index()+1;
+			if( nextpos>0 && visited[nextpos] != 'V' && cmaze.maze_index(nextpos%width, nextpos/width) != '%' )
+			{
+				//now without the ghost, this is a valid position. MAY NOT in the queue YET
+				
+				if( nextpos != gcurrpos && nextpos != gnextpos )
+				{
+					//now we know that this next position has no conflict with the ghost.
+					int new_totalcost= cells[nextpos]. get_heuristic() + curr.get_level() + 1;
+					if( mc_que.contains( cells[nextpos] ) && new_totalcost < cells[nextpos].get_totalCost() )
+					{
+						//in this situation the queue has the next position, we need to check whether
+						//there is a shorter path to it. If there is, delete the previous one in the queue.
+						mc_que.remove( cells[nextpos] );
+					}
+					if( !mc_que.contains(cells[nextpos]) )
+					{
+						cells[nextpos]. set_parent(curr.get_index());
+						cells[nextpos]. set_level(curr.get_level() + 1);
+						cells[nextpos]. set_totalCost(new_totalcost);
+						cells[nextpos]. set_ghost_dir(gnextdir);
+						cells[nextpos]. set_ghost_pos(gnextpos);
+						mc_que.add(cells[nextpos]);
+					}
+				}
+			}
+			//bottom neighbor=======================================================
+			nextpos = curr.get_index()-width;
+			if( nextpos>0 && visited[nextpos] != 'V' && cmaze.maze_index(nextpos%width, nextpos/width) != '%' )
+			{
+				//now without the ghost, this is a valid position. MAY NOT in the queue YET
+				
+				if( nextpos != gcurrpos && nextpos != gnextpos )
+				{
+					//now we know that this next position has no conflict with the ghost.
+					int new_totalcost= cells[nextpos]. get_heuristic() + curr.get_level() + 1;
+					if( mc_que.contains( cells[nextpos] ) && new_totalcost < cells[nextpos].get_totalCost() )
+					{
+						//in this situation the queue has the next position, we need to check whether
+						//there is a shorter path to it. If there is, delete the previous one in the queue.
+						mc_que.remove( cells[nextpos] );
+					}
+					if( !mc_que.contains(cells[nextpos]) )
+					{
+						cells[nextpos]. set_parent(curr.get_index());
+						cells[nextpos]. set_level(curr.get_level() + 1);
+						cells[nextpos]. set_totalCost(new_totalcost);
+						cells[nextpos]. set_ghost_dir(gnextdir);
+						cells[nextpos]. set_ghost_pos(gnextpos);
+						mc_que.add(cells[nextpos]);
+					}
+				}
+			}
+			//top neighbor==========================================================
+			nextpos = curr.get_index()+width;
+			if( nextpos>0 && visited[nextpos] != 'V' && cmaze.maze_index(nextpos%width, nextpos/width) != '%' )
+			{
+				//now without the ghost, this is a valid position. MAY NOT in the queue YET
+				
+				if( nextpos != gcurrpos && nextpos != gnextpos )
+				{
+					//now we know that this next position has no conflict with the ghost.
+					int new_totalcost= cells[nextpos]. get_heuristic() + curr.get_level() + 1;
+					if( mc_que.contains( cells[nextpos] ) && new_totalcost < cells[nextpos].get_totalCost() )
+					{
+						//in this situation the queue has the next position, we need to check whether
+						//there is a shorter path to it. If there is, delete the previous one in the queue.
+						mc_que.remove( cells[nextpos] );
+					}
+					if( !mc_que.contains(cells[nextpos]) )
+					{
+						cells[nextpos]. set_parent(curr.get_index());
+						cells[nextpos]. set_level(curr.get_level() + 1);
+						cells[nextpos]. set_totalCost(new_totalcost);
+						cells[nextpos]. set_ghost_dir(gnextdir);
+						cells[nextpos]. set_ghost_pos(gnextpos);
+						mc_que.add(cells[nextpos]);
+					}
+				}
+			}
+			
+		}
+	
+	}
+
+	
 public int multidots_SolveMazeAStar(Maze cmaze) {
 		if (cmaze == null) // if cmaze is null, fail
 			return -1;
@@ -560,10 +749,6 @@ public int multidots_SolveMazeAStar(Maze cmaze) {
 		System.out.println("pathcost" + pathcost);
 return 0;
 }
-
-
-
-
 
 	/*
 	 * input: cmaze - currentmaze turn_cost - how many does fm_cost - how many

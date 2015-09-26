@@ -328,6 +328,22 @@ public class Maze_pathFinding {
 		if (cmaze == null) // if cmaze is null, fail
 			return -1;
 	
+		maze_cell_g cell1 = new maze_cell_g();
+		maze_cell_g cell2 = new maze_cell_g();
+		cell1.set_level(0);
+		cell1.set_parent(0);
+		cell1.set_totalCost(0);
+		cell1.set_ghost_pos(0);
+		cell1.set_ghost_dir(1);
+		cell2.set_level(0);
+		cell2.set_parent(0);
+		cell2.set_totalCost(0);
+		cell2.set_ghost_pos(0);
+		cell2.set_ghost_dir(0);
+		System.out.println("Test if equal:"+(cell1==cell2));
+		
+		/////////////////////////////////
+		
 		int goal_state = cmaze.get_goal_state(); //end point in maze
 		int start_state = cmaze.get_start_state(); //start point in maze
 		int ghost_start = cmaze.get_ghost_start();
@@ -505,10 +521,17 @@ public class Maze_pathFinding {
 			}
 			
 		}
-	
+		int currpos = goal_state;
+		while( currpos != start_state )
+		{
+			pathcost++;
+			cmaze.fill_in_maze(currpos % width, currpos / width, '.');
+			currpos = cells[currpos].get_parent();
+		}
+		return 0;
 	}
 
-	
+/*	
 public int multidots_SolveMazeAStar(Maze cmaze) {
 		if (cmaze == null) // if cmaze is null, fail
 			return -1;
@@ -748,7 +771,7 @@ public int multidots_SolveMazeAStar(Maze cmaze) {
 		
 		System.out.println("pathcost" + pathcost);
 return 0;
-}
+}*/
 
 	/*
 	 * input: cmaze - currentmaze turn_cost - how many does fm_cost - how many

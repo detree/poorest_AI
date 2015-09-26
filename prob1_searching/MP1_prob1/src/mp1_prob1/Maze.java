@@ -80,6 +80,7 @@ public class Maze{
 		/* store start state and goal state */
 		maze_position[0] = search('P');
 		maze_position[1] = search('.');
+		maze_position[2] = search('G');
 		// fill_in_maze(0,0,'a');
 		// System.out.println(maze_read[maze_position[0]] + " " +
 		// maze_read[maze_position[1]]);
@@ -126,6 +127,13 @@ public class Maze{
 	 */
 	public int get_start_state() {
 		return maze_position[0];
+	}
+	
+	/*
+	 * input: none return: index of the ghost's start state
+	 */
+	public int get_ghost_start(){
+		return maze_position[2];
 	}
 
 	/*

@@ -42,7 +42,7 @@ public class Maze{
 
 		/* open maze.txt */
 		try {
-			br = new BufferedReader(new FileReader("bigGhost.txt"));
+			br = new BufferedReader(new FileReader("mediumGhost.txt"));
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -201,12 +201,18 @@ public class Maze{
 		else if(next - cur == -maze_width)
 			this.dir = 'N';
 	}
+	
+	private static int heuristic_wall_count[];
+	int hval_wall(int x, int y)
+	{
+		return heuristic_wall_count[x+y*maze_width];
+	}
 	/*
 	 * input - none
 	 * purpose - return a heuristic function that represent the smallest number of vertical wall and horizontal wall from a point to the goal.
 	 * return - int[# of points in maze][2].
 	 */
-	public int[] heuristic_wall_count()
+	public void heuristic_wall_count()
 	{
 		int y_max = get_height(), x_max = get_width();
 		int number_of_blocks = y_max * x_max;
@@ -353,6 +359,10 @@ public class Maze{
 				mid[x+y*x_max][1] = min( mid[x-1+y*x_max][1], val[x+y*x_max][1]);
 			}
 		
-		return ret;
+		for(int i=0; i<x_max*y_max; i++)
+		{
+			if(mid[i][0] != LARGE_INT) heuristic_wall_count[i]+=mid[i][0];
+			if(mid[i][1] != LARGE_INT) heuristic_wall_count[i]+=mid[i][1];
+		}
 	}
 }

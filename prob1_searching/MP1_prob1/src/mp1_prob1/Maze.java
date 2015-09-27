@@ -29,7 +29,7 @@ public class Maze{
 
 		/* open maze.txt */
 		try {
-			br = new BufferedReader(new FileReader("dotmaze.txt"));
+			br = new BufferedReader(new FileReader("mediumMaze.txt"));
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -42,7 +42,7 @@ public class Maze{
 			while ((line = br.readLine()) != null) {
 				maze_width = line.length();
 				maze_height++;
-				System.out.println(line);
+				//System.out.println(line);
 				if (temp_maze == null)
 					temp_maze = line;
 				else

@@ -10,7 +10,7 @@ public class Maze_cell implements Comparator<Maze_cell>{
 	private int heuristic; //heuristic value
 	private int total_cost; // total cost from this maze_cell to the goal state
 	private int level; // the current level of this maze_cell, path_cost
-	private int dir; // dir when arriving this maze_cell
+	private char dir; // dir when arriving this maze_cell
 	
 	/* default constructor */
 	public Maze_cell(){
@@ -46,6 +46,10 @@ public class Maze_cell implements Comparator<Maze_cell>{
 		return this.level;
 	}
 	
+	public char get_dir(){
+		return this.dir;
+	}
+	
 	public void set_level(int l){
 		this.level = l;
 	}
@@ -66,11 +70,42 @@ public class Maze_cell implements Comparator<Maze_cell>{
 	 * input: curr - curr maze position
 	 * 		  prev - prev maze position
 	 */
-	public boolean make_turn(int curr, int prev){
-		if( Math.abs(curr-prev) == 1)
-			return false;
+	public int turn_cost(Maze_cell prev){
+		char north = 'N';
+		char east = 'E';
+		char west = 'W';
+		char south = 'S';
+		if(this.dir == north && prev.dir == south)
+			return 4;
+		else if(this.dir == south && prev.dir == north)
+			return 4;
+		else if(this.dir == west && prev.dir == east)
+			return 4;
+		else if(this.dir == east && prev.dir == west)
+			return 4;
+		else if(this.dir != prev.dir)
+			return 2;
 		else
-			return true;
+			return 0;
+	}
+	
+	public int forward_cost(Maze_cell prev){
+		char north = 'N';
+		char east = 'E';
+		char west = 'W';
+		char south = 'S';
+		if(this.dir == north && prev.dir == south)
+			return 2;
+		else if(this.dir == south && prev.dir == north)
+			return 2;
+		else if(this.dir == west && prev.dir == east)
+			return 2;
+		else if(this.dir == east && prev.dir == west)
+			return 2;
+		else if(this.dir != prev.dir)
+			return 1;
+		else
+			return 0;
 	}
 	
 	public int compareTo(Maze_cell m) {

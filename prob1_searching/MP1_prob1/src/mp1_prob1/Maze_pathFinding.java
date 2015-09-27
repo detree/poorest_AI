@@ -529,6 +529,7 @@ System.out.println("Test if equal:"+(cell1==cell2));
 			}
 			
 		}
+		System.out.println("finished searching");
 		int currpos = goal_state;
 		while( currpos != start_state )
 		{

@@ -6,6 +6,8 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
 
+import com.sun.jndi.url.iiopname.iiopnameURLContextFactory;
+
 import javafx.geometry.Pos;
 
 public class Maze_pathFinding {
@@ -140,7 +142,7 @@ public class Maze_pathFinding {
 	 * solve a maze with A* search
 	 */
 	public int SolveMazeAStar(Maze cmaze) {
-		
+	
 		if (cmaze == null) // if cmaze is null, fail
 			return -1;
 
@@ -148,6 +150,16 @@ public class Maze_pathFinding {
 		int start_state = cmaze.get_start_state(); //start point in maze
 		int nextpos = -100;
 		int pathcost = 0;
+		cmaze.heuristic_wall_count();
+System.out.println("start TESTING===================");
+for(int x=1; x<6; x++)
+{
+	for(int y=1; y<6; y++)
+		System.out.print(cmaze.hval_wall(x, y)+" ");
+	System.out.println();
+}
+System.out.println("end TESTING===================");
+		int total_node_expanded=0;
 		char[] visited = new char[cmaze.get_height() * cmaze.get_width()];
 		
 		//data structure that holds all maze cells in maze
@@ -159,9 +171,10 @@ public class Maze_pathFinding {
 			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_height()) == '%')
 				cmaze_cell[i] = new Maze_cell(i, -1);
 			else
-				cmaze_cell[i] = new Maze_cell(i, cmaze.manhattan_distance(i
-						% cmaze.get_width(), i / cmaze.get_height(), goal_state
-						% cmaze.get_width(), goal_state / cmaze.get_height()));
+				cmaze_cell[i] = new Maze_cell(i, 
+						cmaze.manhattan_distance(i % cmaze.get_width(), i / cmaze.get_width(), goal_state
+						% cmaze.get_width(), goal_state / cmaze.get_width()) + 
+						cmaze.hval_wall(i % cmaze.get_width(), i / cmaze.get_width()) );
 		}
 		
 		//set up priority queue for cmaze
@@ -181,7 +194,7 @@ public class Maze_pathFinding {
 			temp = mc_que.poll(); //pop the smallest item in queue
 
 			visited[temp.get_index()] = 'V'; //mark as visited
-			
+			total_node_expanded++;
 			//check the four neighbors
 			//left point
 			if (temp.get_index() - 1 > 0) {
@@ -206,6 +219,7 @@ public class Maze_pathFinding {
 							cmaze_cell[nextpos]
 									.set_totalCost(temp.get_level() + 1);
 							mc_que.add(cmaze_cell[nextpos]);
+							total_node_expanded++;
 						}
 					} else { //if not exist, store information required
 						// n_node++;
@@ -235,6 +249,7 @@ public class Maze_pathFinding {
 							cmaze_cell[nextpos]
 									.set_totalCost(temp.get_level() + 1);
 							mc_que.add(cmaze_cell[nextpos]);
+							total_node_expanded++;
 						}
 					} else {
 						// n_node++;
@@ -263,6 +278,7 @@ public class Maze_pathFinding {
 							cmaze_cell[nextpos]
 									.set_totalCost(temp.get_level() + 1);
 							mc_que.add(cmaze_cell[nextpos]);
+							total_node_expanded++;
 						}
 					} else {
 						// n_node++;
@@ -289,6 +305,7 @@ public class Maze_pathFinding {
 							cmaze_cell[nextpos]
 									.set_totalCost(temp.get_level() + 1);
 							mc_que.add(cmaze_cell[nextpos]);
+							total_node_expanded++;
 						}
 					} else {
 						// n_node++;
@@ -313,8 +330,9 @@ public class Maze_pathFinding {
 			temp = cmaze_cell[curr];
 		}
 
-		/*System.out.println("Path cost is: " + pathcost);
-
+		System.out.println("Path cost is: " + pathcost);
+		System.out.println("total node expanded:" + total_node_expanded);
+/*
 		for (int i = 0; i < cmaze.get_height() * cmaze.get_width(); i++)
 			System.out.println(cmaze_cell[i].get_index() % cmaze.get_width()
 					+ "," + cmaze_cell[i].get_index() / cmaze.get_width() + " "

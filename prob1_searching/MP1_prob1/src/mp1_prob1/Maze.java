@@ -8,9 +8,6 @@ package mp1_prob1;
 
 // libraries
 import java.io.*;
-import java.util.*;
-
-import com.sun.media.jai.opimage.MaxCRIF;
 
 
 //import java.util.Arrays;
@@ -21,8 +18,8 @@ public class Maze{
 	static int maze_width = 0;
 	static int maze_height = 0;
 	static int[] maze_position = new int[3]; /* 0: start state; 1: goal state */
-	static char dir;
-	private static final int LARGE_INT = 0xFFFFFFFF;
+	char dir;
+	private static final int LARGE_INT = 0xFFFFFFF;
 	//general helper functions:
 	int max(int a, int b)
 	{
@@ -42,7 +39,7 @@ public class Maze{
 
 		/* open maze.txt */
 		try {
-			br = new BufferedReader(new FileReader("mediumGhost.txt"));
+			br = new BufferedReader(new FileReader("mediumMaze.txt"));
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -202,10 +199,10 @@ public class Maze{
 			this.dir = 'N';
 	}
 	
-	private static int heuristic_wall_count[];
+	private static int[] heuristic_wall_count=null;
 	int hval_wall(int x, int y)
 	{
-		return heuristic_wall_count[x+y*maze_width];
+		return heuristic_wall_count[x+y*get_width()];
 	}
 	/*
 	 * input - none
@@ -216,7 +213,7 @@ public class Maze{
 	{
 		int y_max = get_height(), x_max = get_width();
 		int number_of_blocks = y_max * x_max;
-		int []ret = new int[number_of_blocks];
+		heuristic_wall_count = new int[number_of_blocks];
 		/*
 		 * [#][0] represents for a horizontal line, # of wall block it will encounter to the column of goal
 		 * [#][1] represents for a vertical line, # of wall block it will encounter to the row of goal
@@ -239,7 +236,7 @@ public class Maze{
 			mid[x+goaly*x_max][0] = val[x+goaly*x_max][0];
 			mid[x+goaly*x_max][1] = LARGE_INT;
 		}
-		for(int x=goalx+1; x<=x_max; x++)
+		for(int x=goalx+1; x<x_max; x++)
 		{
 			if( this.maze_index(x, goaly) == '%' )
 				val[x+goaly*x_max][0] = val[x-1+goaly*x_max][0] + 1;
@@ -261,7 +258,7 @@ public class Maze{
 			mid[goalx+y*x_max][0] = LARGE_INT;
 			mid[goalx+y*x_max][1] = val[goalx+y*x_max][1];
 		}
-		for(int y=goalx+1; y<=x_max; y++)
+		for(int y=goaly+1; y<y_max; y++)
 		{
 			if( this.maze_index(goalx, y) == '%' )
 				val[goalx+y*x_max][1] = val[goalx+(y-1)*x_max][1] + 1;
@@ -289,7 +286,7 @@ public class Maze{
 					val[x+y*x_max][1] = val[x+(y+1)*x_max][1];
 				}
 			}
-		for(int x = goalx+1; x<=x_max; x++)
+		for(int x = goalx+1; x<x_max; x++)
 			for(int y = goaly-1; y>=0; y--)
 			{
 				if( this.maze_index(x, y) == '%' )
@@ -304,7 +301,7 @@ public class Maze{
 				}
 			}
 		for(int x = goalx-1; x>=0; x--)
-			for(int y = goaly+1; y<=y_max; y++)
+			for(int y = goaly+1; y<y_max; y++)
 			{
 				if( this.maze_index(x, y) == '%' )
 				{
@@ -317,8 +314,8 @@ public class Maze{
 					val[x+y*x_max][1] = val[x+(y-1)*x_max][1];
 				}
 			}
-		for(int x = goalx+1; x<=x_max; x++)
-			for(int y = goaly+1; y<=y_max; y++)
+		for(int x = goalx+1; x<x_max; x++)
+			for(int y = goaly+1; y<y_max; y++)
 			{
 				if( this.maze_index(x, y) == '%' )
 				{
@@ -331,7 +328,7 @@ public class Maze{
 					val[x+y*x_max][1] = val[x+(y-1)*x_max][1];
 				}
 			}
-		
+
 		//=================================================================================
 		//values for non-combined final function.
 		for(int x = goalx-1; x>=0; x--)
@@ -340,20 +337,20 @@ public class Maze{
 				mid[x+y*x_max][0] = min( mid[x+(y+1)*x_max][0], val[x+y*x_max][0]);
 				mid[x+y*x_max][1] = min( mid[x+1+y*x_max][1], val[x+y*x_max][1]);
 			}
-		for(int x = goalx+1; x<=x_max; x++)
+		for(int x = goalx+1; x<x_max; x++)
 			for(int y = goaly-1; y>=0; y--)
 			{
 				mid[x+y*x_max][0] = min( mid[x+(y+1)*x_max][0], val[x+y*x_max][0]);
 				mid[x+y*x_max][1] = min( mid[x-1+y*x_max][1], val[x+y*x_max][1]);
 			}
 		for(int x = goalx-1; x>=0; x--)
-			for(int y = goaly+1; y<=y_max; y++)
+			for(int y = goaly+1; y<y_max; y++)
 			{
 				mid[x+y*x_max][0] = min( mid[x+(y-1)*x_max][0], val[x+y*x_max][0]);
 				mid[x+y*x_max][1] = min( mid[x+1+y*x_max][1], val[x+y*x_max][1]);
 			}
-		for(int x = goalx+1; x<=x_max; x++)
-			for(int y = goaly+1; y<=y_max; y++)
+		for(int x = goalx+1; x<x_max; x++)
+			for(int y = goaly+1; y<y_max; y++)
 			{
 				mid[x+y*x_max][0] = min( mid[x+(y-1)*x_max][0], val[x+y*x_max][0]);
 				mid[x+y*x_max][1] = min( mid[x-1+y*x_max][1], val[x+y*x_max][1]);
@@ -361,8 +358,8 @@ public class Maze{
 		
 		for(int i=0; i<x_max*y_max; i++)
 		{
-			if(mid[i][0] != LARGE_INT) heuristic_wall_count[i]+=mid[i][0];
-			if(mid[i][1] != LARGE_INT) heuristic_wall_count[i]+=mid[i][1];
+			if(mid[i][0] != LARGE_INT) heuristic_wall_count[i]+=(mid[i][0]);
+			if(mid[i][1] != LARGE_INT) heuristic_wall_count[i]+=(mid[i][1]);
 		}
 	}
 }

@@ -32,7 +32,7 @@ public class Multidots_maze {
 			n_goals = i;
 			cur_pos = goal_found;
 		}
-		goal_found++;
+		n_goals++;
 		// set the goal with minimum heuristic value as the chosen goal, it's
 		// index is the goal_state
 		multidot_goal_cell chosengoal = gc_que.poll();
@@ -66,8 +66,8 @@ public class Multidots_maze {
 		mc_que.add(cmaze_cell[start_state]);
 		cmaze_cell[start_state].set_level(0);
 		Maze_cell temp = null;
-		int n_node = 1;
-		int n_goal_found = 1;
+		int n_node = 0;
+		int n_goal_found = 0;
 		// similar to BFS expansion but need to update the parent information
 		// when find a smaller total cost
 		// for the same maze cell in queue
@@ -75,7 +75,7 @@ public class Multidots_maze {
 			while (mc_que.size() != 0) {
 
 				temp = mc_que.poll(); // pop the smallest item in queue
-
+				n_node++;
 				visited[temp.get_index()] = 'V'; // mark as visited
 
 				// check the four neighbors
@@ -130,7 +130,7 @@ public class Multidots_maze {
 						if (mc_que.contains(cmaze_cell[nextpos])) {
 							int new_tc = cmaze_cell[nextpos].get_heuristic()
 									+ temp.get_level() + 1;
-
+							
 							if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
 								mc_que.remove(cmaze_cell[nextpos]);
 								cmaze_cell[nextpos]
@@ -215,7 +215,13 @@ public class Multidots_maze {
 			temp = cmaze_cell[goal_state];
 			// get the index of the goal and mark it
 			int curr = temp.get_index();
-			char char_on_goal = (char) (n_goal_found + 48);
+			char char_on_goal;
+			if(n_goal_found < 10)
+				char_on_goal = (char) (n_goal_found + 48);
+			else if(n_goal_found < 34)
+				char_on_goal  =  (char)(n_goal_found + 55);
+			else 
+				char_on_goal = (char)(n_goal_found + 63);
 			cmaze.fill_in_maze(curr % cmaze.get_width(),
 					curr / cmaze.get_width(), char_on_goal);
 			int perserve_curr = curr;
@@ -225,6 +231,7 @@ public class Multidots_maze {
 				curr = temp.get_parent();
 				temp = cmaze_cell[curr];
 			}
+			System.out.println("pathcost:" + pathcost);
 			// now the pacman start from this position to get to one of the
 			// other remaining goals
 			start_state = perserve_curr;
@@ -232,6 +239,11 @@ public class Multidots_maze {
 			// System.out.println("goals_found" + n_goal_found);
 			// show that one more goal is found
 			n_goal_found++;
+			if(n_goals == n_goal_found){
+				System.out.println("pathcost:" + pathcost);
+				System.out.println("number of nodes:" + n_node);
+				return 0;
+			}
 			gc_que.clear();
 			// find all the goals
 			cur_pos = 0;
@@ -248,7 +260,7 @@ public class Multidots_maze {
 				cur_pos = goal_found;
 			}
 			chosengoal = gc_que.poll();
-			// System.out.println("chsen goal" + chosengoal.get_pos());
+			// System.out.println("chosen goal" + chosengoal.get_pos());
 			goal_state = chosengoal.get_pos();
 			nextpos = -100;
 			// clean the visited array,because we may need to go to a cell

@@ -29,7 +29,7 @@ public class Maze{
 
 		/* open maze.txt */
 		try {
-			br = new BufferedReader(new FileReader("mediumMaze.txt"));
+			br = new BufferedReader(new FileReader("dotmaze.txt"));
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -88,6 +88,7 @@ public class Maze{
 	public char maze_index(int x, int y) {
 		if (x < 0 || y < 0 || x >= maze_width || y >= maze_height) {
 			System.out.println("Out of bound");
+			System.out.println("x" + x +" " + "y" + y );
 			return 'a';
 		}
 		// System.out.println(maze_read.charAt(x + y * maze_width));
@@ -158,17 +159,21 @@ public class Maze{
 		return ret_distance;
 	}
 	
-
+	// input: c - the direction  
 	public void set_dir(char c)
 	{
 		this.dir = c;
 	}
-	
+	//return the dir
 	public char get_dir()
 	{
 		return this.dir;
 	} 
 	
+	/*input: cur - current position
+	 *		next - the position of the pacman after the pacman move on more step
+	 *return the direction the pacman should take if he wants to go from cur to next
+	 */		 
 	public void find_dir(int cur,int next)
 	{
 		if(next - cur == 1)
@@ -179,5 +184,24 @@ public class Maze{
 			this.dir = 'S';
 		else if(next - cur == -maze_width)
 			this.dir = 'N';
+	}
+	
+	/*input: cur_pos - current position
+	 *		next - the position of the pacman after the pacman move on more step
+	 */
+	public int find_goals(int cur_pos)
+	{
+		if(cur_pos == maze_width * maze_height - 1)
+			return -1;
+		
+		cur_pos ++;
+		
+		while(maze_read[cur_pos] != '.'){
+			if(cur_pos == maze_width * maze_height - 1)
+				return -1;
+			
+			cur_pos ++;
+		}
+		return cur_pos;
 	}
 }

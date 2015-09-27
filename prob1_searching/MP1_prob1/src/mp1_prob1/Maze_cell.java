@@ -3,17 +3,24 @@ package mp1_prob1;
 import java.util.Comparator;
 
 public class Maze_cell implements Comparator<Maze_cell>{
-	private int index;
-	private int parent;
-	private int heuristic;
-	private int total_cost;
-	private int level;
 	
+	/* privart variables*/
+	private int index; // index of this maze_cell, used to transform this maze_cell back to the (x,y) coordinate
+	private int parent;	// parent of this maze_cell
+	private int heuristic; //heuristic value
+	private int total_cost; // total cost from this maze_cell to the goal state
+	private int level; // the current level of this maze_cell, path_cost
+	private int dir; // dir when arriving this maze_cell
+	
+	/* default constructor */
 	public Maze_cell(){
 		index = -1;
 		heuristic = -1;
 	}
 	
+	/* input: i - index 
+	 * 		  h - heuristic
+	 */
 	public Maze_cell(int i, int h){
 		index = i;
 		heuristic = h;
@@ -24,7 +31,7 @@ public class Maze_cell implements Comparator<Maze_cell>{
 	}
 	
 	public int get_heuristic(){
-		return 0;//this.heuristic;
+		return this.heuristic;
 	}
 	
 	public int get_totalCost(){
@@ -51,6 +58,21 @@ public class Maze_cell implements Comparator<Maze_cell>{
 		this.total_cost =  t;
 	}
 
+	public void set_dir(char dir){
+		this.dir =  dir;
+	}
+	
+	/* check whether making a turn between previos cell and curr cell 
+	 * input: curr - curr maze position
+	 * 		  prev - prev maze position
+	 */
+	public boolean make_turn(int curr, int prev){
+		if( Math.abs(curr-prev) == 1)
+			return false;
+		else
+			return true;
+	}
+	
 	public int compareTo(Maze_cell m) {
 		// TODO Auto-generated method stub
 		if(m.total_cost > this.total_cost)

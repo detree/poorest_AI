@@ -8,7 +8,7 @@ import java.util.Stack;
 
 public class Maze_pathFinding {
 
-/*----------------------------------------------------problem 1 part 1 ---------------------------------------------*/
+	/*----------------------------------------------------problem 1 part 1 ---------------------------------------------*/
 	/*
 	 * input: cmaze - current maze, startpos - an integer represent the
 	 * startposof the "player" return: 0 - if success, -1 if fail solve the maze
@@ -98,7 +98,7 @@ public class Maze_pathFinding {
 		}
 		return -1;
 	}
-	
+
 	/*
 	 * input: cmaze - current maze, startpos - an integer represent the
 	 * startposof the "player" return: 0 - if success, -1 if fail solve the maze
@@ -193,16 +193,18 @@ public class Maze_pathFinding {
 	}
 
 	/*
-	 * input: cmaze - current maze 
-	 * return: 0 - if success, -1 if fail 
-	 * solve a maze with greedy best first algorithm
+	 * input: cmaze - current maze return: 0 - if success, -1 if fail solve a
+	 * maze with greedy best first algorithm
 	 */
 	public int SolveMazeGBFS(Maze cmaze) {
-		Stack st = new Stack();
+		if (cmaze == null)
+			return -1; // if the maze doesn't exist, return 0
 		int mazeSize = cmaze.get_width() * cmaze.get_height();
+		// define arrays necessary for traversing and drawing the result
 		int[] parent = new int[mazeSize];
 		int[] visited = new int[mazeSize];
 		int[] Mdist = new int[mazeSize];
+		// make a heuristic table
 		int goalstate = cmaze.get_goal_state();
 		int pathcost = 0;
 		int n_node = 1;
@@ -213,11 +215,19 @@ public class Maze_pathFinding {
 						+ Math.abs(goalstate / cmaze.get_width() - i
 								/ cmaze.get_width());
 		}
+		// set up the stack for traversing
+		Stack st = new Stack();
 		int current = cmaze.get_start_state();
 		int next_pos = -1;
 		int possible_next_pos;
 		st.push(current);
+		/*
+		 * I used a stack here but the stack is only used when all four
+		 * directions of current node is wall or visited. The most important
+		 * thing is to find the node with minimum heuristic value.
+		 */
 		while (!st.isEmpty()) {
+			// -1 means next_pos doesn't exist
 			next_pos = -1;
 			// after we got to goal position
 			if (cmaze.maze_index(current % cmaze.get_width(),
@@ -239,7 +249,9 @@ public class Maze_pathFinding {
 			}
 
 			else {
-
+				// search all four directions to get the neighbor node with
+				// minimum
+				// heuristic value.
 				visited[current] = 1;
 				if (current - 1 > 0) {
 					possible_next_pos = current - 1;
@@ -289,12 +301,12 @@ public class Maze_pathFinding {
 						++n_node;
 					}
 				}
-
+				// if we can't go to any neighbor node, go back one step
 				if (next_pos == -1) {
 					current = (Integer) st.peek();
 					st.pop();
 				}
-
+				// go to the neighbor node with minimum heuristic value
 				else {
 					parent[next_pos] = current;
 					st.push(current);
@@ -304,28 +316,27 @@ public class Maze_pathFinding {
 		}
 		return -1;
 	}
-	
+
 	/*
-	 * input: cmaze - current maze
-	 * return 0 when success, -1 if fail
-	 * solve a maze with A* search
+	 * input: cmaze - current maze return 0 when success, -1 if fail solve a
+	 * maze with A* search
 	 */
 	public int SolveMazeAStar(Maze cmaze) {
-		
+
 		if (cmaze == null) // if cmaze is null, fail
 			return -1;
 
-		int goal_state = cmaze.get_goal_state(); //end point in maze
-		int start_state = cmaze.get_start_state(); //start point in maze
+		int goal_state = cmaze.get_goal_state(); // end point in maze
+		int start_state = cmaze.get_start_state(); // start point in maze
 		int nextpos = -100;
 		int pathcost = 0;
 		char[] visited = new char[cmaze.get_height() * cmaze.get_width()];
-		
-		//data structure that holds all maze cells in maze
+
+		// data structure that holds all maze cells in maze
 		Maze_cell[] cmaze_cell = new Maze_cell[cmaze.get_height()
 				* cmaze.get_width()];
-		
-		//initialize cmaze_cell
+
+		// initialize cmaze_cell
 		for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
 			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_height()) == '%')
 				cmaze_cell[i] = new Maze_cell(i, -1);
@@ -334,38 +345,40 @@ public class Maze_pathFinding {
 						% cmaze.get_width(), i / cmaze.get_height(), goal_state
 						% cmaze.get_width(), goal_state / cmaze.get_height()));
 		}
-		
-		//set up priority queue for cmaze
+
+		// set up priority queue for cmaze
 		Comparator<Maze_cell> mc_comp = new Maze_cell();
 		PriorityQueue<Maze_cell> mc_que = new PriorityQueue<Maze_cell>(
 				cmaze.get_height() * cmaze.get_width(), mc_comp);
-		
-		//start to do cmaze expansion
+
+		// start to do cmaze expansion
 		mc_que.add(cmaze_cell[start_state]);
 		cmaze_cell[start_state].set_level(0);
 		Maze_cell temp = null;
-		
-		//similar to BFS expansion but need to update the parent information when find a smaller total cost
+
+		// similar to BFS expansion but need to update the parent information
+		// when find a smaller total cost
 		// for the same maze cell in queue
 		while (mc_que.size() != 0) {
 
-			temp = mc_que.poll(); //pop the smallest item in queue
+			temp = mc_que.poll(); // pop the smallest item in queue
 
-			visited[temp.get_index()] = 'V'; //mark as visited
-			
-			//check the four neighbors
-			//left point
+			visited[temp.get_index()] = 'V'; // mark as visited
+
+			// check the four neighbors
+			// left point
 			if (temp.get_index() - 1 > 0) {
 				nextpos = temp.get_index() - 1;
-				//Check the point is already in queue or not
-				//If the point is already in queue, compare the total cost for 
-				//the current path and the previous path
-				//Select the smaller cost path and store the result in cmaze_cell
+				// Check the point is already in queue or not
+				// If the point is already in queue, compare the total cost for
+				// the current path and the previous path
+				// Select the smaller cost path and store the result in
+				// cmaze_cell
 				if (visited[nextpos] != 'V'
 						&& cmaze.maze_index(nextpos % cmaze.get_width(),
 								nextpos / cmaze.get_width()) != '%') {
-					
-					//if exist, compare path cost and restore if necessary
+
+					// if exist, compare path cost and restore if necessary
 					if (mc_que.contains(cmaze_cell[nextpos])) {
 						int new_tc = cmaze_cell[nextpos].get_heuristic()
 								+ temp.get_level() + 1;
@@ -378,7 +391,7 @@ public class Maze_pathFinding {
 									.set_totalCost(temp.get_level() + 1);
 							mc_que.add(cmaze_cell[nextpos]);
 						}
-					} else { //if not exist, store information required
+					} else { // if not exist, store information required
 						// n_node++;
 						cmaze_cell[nextpos].set_parent(temp.get_index());
 						cmaze_cell[nextpos].set_level(temp.get_level() + 1);
@@ -387,9 +400,10 @@ public class Maze_pathFinding {
 					}
 				}
 			}
-			
-			// the next 3 steps are the same except for neighbors from right, bottom and top
-			//right neighbor
+
+			// the next 3 steps are the same except for neighbors from right,
+			// bottom and top
+			// right neighbor
 			if (temp.get_index() + 1 < cmaze.get_height() * cmaze.get_width()) {
 				nextpos = temp.get_index() + 1;
 				if (visited[nextpos] != 'V'
@@ -416,7 +430,7 @@ public class Maze_pathFinding {
 					}
 				}
 			}
-			//bottom neighbor
+			// bottom neighbor
 			if (temp.get_index() + cmaze.get_width() < cmaze.get_height()
 					* cmaze.get_width()) {
 				nextpos = temp.get_index() + cmaze.get_width();
@@ -444,7 +458,7 @@ public class Maze_pathFinding {
 					}
 				}
 			}
-			//top neighbor
+			// top neighbor
 			if (temp.get_index() - cmaze.get_width() > 0) {
 				nextpos = temp.get_index() - cmaze.get_width();
 				if (visited[nextpos] != 'V'
@@ -471,8 +485,8 @@ public class Maze_pathFinding {
 				}
 			}
 		}
-		
-		//print out the path and calculate the total path cost
+
+		// print out the path and calculate the total path cost
 		temp = cmaze_cell[goal_state];
 		int curr = temp.get_index();
 		while (curr != start_state) {
@@ -493,7 +507,280 @@ public class Maze_pathFinding {
 		return 0;
 	}
 
-/*----------------------------------------------------problem 1 part 2 ---------------------------------------------*/
+	/*----------------------------------------------------problem 1 part 2 ---------------------------------------------*/
+
+	/*public int multidots_SolveMazeAStar(Maze cmaze) {
+		if (cmaze == null) // if cmaze is null, fail
+			return -1;
+		// cur_pos is used to find all the goals
+		int cur_pos = 0;
+		int goal_found;
+		int start_state = cmaze.get_start_state(); // start point in maze
+		// initialize the priority queue fo goals
+		Comparator<multidot_goal_cell> gc_comp = new multidot_goal_cell();
+		PriorityQueue<multidot_goal_cell> gc_que = new PriorityQueue<multidot_goal_cell>(
+				gc_comp);
+		// find the goal that has the smallest heuristic vaule, at the same time
+		// count for number fo goals.
+		int n_goals = -1;
+		for (int i = 0; (goal_found = cmaze.find_goals(cur_pos)) != -1; i++) {
+			int cur_Mdist = cmaze.manhattan_distance(
+					start_state % cmaze.get_width(),
+					start_state / cmaze.get_width(),
+					goal_found % cmaze.get_width(),
+					goal_found / cmaze.get_width());
+			multidot_goal_cell goal_cell = new multidot_goal_cell(goal_found,
+					cur_Mdist);
+			gc_que.add(goal_cell);
+			n_goals = i;
+			cur_pos = goal_found;
+		}
+		goal_found++;
+		// set the goal with minimum heuristic value as the chosen goal, it's
+		// index is the goal_state
+		multidot_goal_cell chosengoal = gc_que.poll();
+		// System.out.println("chosen" + chosengoal.get_pos());
+		int goal_state = chosengoal.get_pos();
+
+		int nextpos = -100;
+		int pathcost = 0;
+		char[] visited = new char[cmaze.get_height() * cmaze.get_width()];
+
+		// data structure that holds all maze cells in maze
+		Maze_cell[] cmaze_cell = new Maze_cell[cmaze.get_height()
+				* cmaze.get_width()];
+
+		// initialize cmaze_cell
+		for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
+			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_width()) == '%')
+				cmaze_cell[i] = new Maze_cell(i, -1);
+			else
+				cmaze_cell[i] = new Maze_cell(i, cmaze.manhattan_distance(i
+						% cmaze.get_width(), i / cmaze.get_width(), goal_state
+						% cmaze.get_width(), goal_state / cmaze.get_width()));
+		}
+
+		// set up priority queue for cmaze
+		Comparator<Maze_cell> mc_comp = new Maze_cell();
+		PriorityQueue<Maze_cell> mc_que = new PriorityQueue<Maze_cell>(
+				cmaze.get_height() * cmaze.get_width(), mc_comp);
+
+		// start to do cmaze expansion
+		mc_que.add(cmaze_cell[start_state]);
+		cmaze_cell[start_state].set_level(0);
+		Maze_cell temp = null;
+		int n_node = 1;
+		int n_goal_found = 1;
+		// similar to BFS expansion but need to update the parent information
+		// when find a smaller total cost
+		// for the same maze cell in queue
+		while (n_goals != n_goal_found) {
+			while (mc_que.size() != 0) {
+
+				temp = mc_que.poll(); // pop the smallest item in queue
+
+				visited[temp.get_index()] = 'V'; // mark as visited
+
+				// check the four neighbors
+				// left point
+				if (temp.get_index() - 1 > 0) {
+					nextpos = temp.get_index() - 1;
+					// Check the point is already in queue or not
+					// If the point is already in queue, compare the total cost
+					// for
+					// the current path and the previous path
+					// Select the smaller cost path and store the result in
+					// cmaze_cell
+					if (visited[nextpos] != 'V'
+							&& cmaze.maze_index(nextpos % cmaze.get_width(),
+									nextpos / cmaze.get_width()) != '%') {
+
+						// if exist, compare path cost and restore if necessary
+						if (mc_que.contains(cmaze_cell[nextpos])) {
+							int new_tc = cmaze_cell[nextpos].get_heuristic()
+									+ temp.get_level() + 1;
+
+							if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
+								mc_que.remove(cmaze_cell[nextpos]);
+								cmaze_cell[nextpos]
+										.set_parent(temp.get_index());
+								cmaze_cell[nextpos]
+										.set_level(temp.get_level() + 1);
+								cmaze_cell[nextpos].set_totalCost(temp
+										.get_level() + 1);
+								mc_que.add(cmaze_cell[nextpos]);
+							}
+						} else { // if not exist, store information required
+							n_node++;
+							cmaze_cell[nextpos].set_parent(temp.get_index());
+							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
+							cmaze_cell[nextpos]
+									.set_totalCost(temp.get_level() + 1);
+							mc_que.add(cmaze_cell[nextpos]);
+						}
+					}
+				}
+
+				// the next 3 steps are the same except for neighbors from
+				// right, bottom and top
+				// right neighbor
+				if (temp.get_index() + 1 < cmaze.get_height()
+						* cmaze.get_width()) {
+					nextpos = temp.get_index() + 1;
+					if (visited[nextpos] != 'V'
+							&& cmaze.maze_index(nextpos % cmaze.get_width(),
+									nextpos / cmaze.get_width()) != '%') {
+						if (mc_que.contains(cmaze_cell[nextpos])) {
+							int new_tc = cmaze_cell[nextpos].get_heuristic()
+									+ temp.get_level() + 1;
+
+							if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
+								mc_que.remove(cmaze_cell[nextpos]);
+								cmaze_cell[nextpos]
+										.set_parent(temp.get_index());
+								cmaze_cell[nextpos]
+										.set_level(temp.get_level() + 1);
+								cmaze_cell[nextpos].set_totalCost(temp
+										.get_level() + 1);
+								mc_que.add(cmaze_cell[nextpos]);
+							}
+						} else {
+							// n_node++;
+							cmaze_cell[nextpos].set_parent(temp.get_index());
+							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
+							cmaze_cell[nextpos]
+									.set_totalCost(temp.get_level() + 1);
+							mc_que.add(cmaze_cell[nextpos]);
+						}
+					}
+				}
+				// bottom neighbor
+				if (temp.get_index() + cmaze.get_width() < cmaze.get_height()
+						* cmaze.get_width()) {
+					nextpos = temp.get_index() + cmaze.get_width();
+					if (visited[nextpos] != 'V'
+							&& cmaze.maze_index(nextpos % cmaze.get_width(),
+									nextpos / cmaze.get_width()) != '%') {
+						if (mc_que.contains(cmaze_cell[nextpos])) {
+							int new_tc = cmaze_cell[nextpos].get_heuristic()
+									+ temp.get_level() + 1;
+
+							if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
+								mc_que.remove(cmaze_cell[nextpos]);
+								cmaze_cell[nextpos]
+										.set_parent(temp.get_index());
+								cmaze_cell[nextpos]
+										.set_level(temp.get_level() + 1);
+								cmaze_cell[nextpos].set_totalCost(temp
+										.get_level() + 1);
+								mc_que.add(cmaze_cell[nextpos]);
+							}
+						} else {
+							// n_node++;
+							cmaze_cell[nextpos].set_parent(temp.get_index());
+							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
+							cmaze_cell[nextpos]
+									.set_totalCost(temp.get_level() + 1);
+							mc_que.add(cmaze_cell[nextpos]);
+						}
+					}
+				}
+				// top neighbor
+				if (temp.get_index() - cmaze.get_width() > 0) {
+					nextpos = temp.get_index() - cmaze.get_width();
+					if (visited[nextpos] != 'V'
+							&& cmaze.maze_index(nextpos % cmaze.get_width(),
+									nextpos / cmaze.get_width()) != '%') {
+						if (mc_que.contains(cmaze_cell[nextpos])) {
+							int new_tc = cmaze_cell[nextpos].get_heuristic()
+									+ temp.get_level() + 1;
+							if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
+								mc_que.remove(cmaze_cell[nextpos]);
+								cmaze_cell[nextpos]
+										.set_parent(temp.get_index());
+								cmaze_cell[nextpos]
+										.set_level(temp.get_level() + 1);
+								cmaze_cell[nextpos].set_totalCost(temp
+										.get_level() + 1);
+								mc_que.add(cmaze_cell[nextpos]);
+							}
+						} else {
+							// n_node++;
+							cmaze_cell[nextpos].set_parent(temp.get_index());
+							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
+							cmaze_cell[nextpos]
+									.set_totalCost(temp.get_level() + 1);
+							mc_que.add(cmaze_cell[nextpos]);
+						}
+					}
+				}
+			}
+			temp = cmaze_cell[goal_state];
+			// get the index of the goal and mark it
+			int curr = temp.get_index();
+			char char_on_goal = (char) (n_goal_found + 48);
+			cmaze.fill_in_maze(curr % cmaze.get_width(),
+					curr / cmaze.get_width(), char_on_goal);
+			int perserve_curr = curr;
+			// count the path length
+			while (curr != start_state) {
+				pathcost++;
+				curr = temp.get_parent();
+				temp = cmaze_cell[curr];
+			}
+			// now the pacman start from this position to get to one of the
+			// other remaining goals
+			start_state = perserve_curr;
+			// System.out.println("n_goals" + n_goals);
+			// System.out.println("goals_found" + n_goal_found);
+			// show that one more goal is found
+			n_goal_found++;
+			gc_que.clear();
+			// find all the goals
+			cur_pos = 0;
+			// find the nearest goal again
+			for (int i = 0; (goal_found = cmaze.find_goals(cur_pos)) != -1; i++) {
+				int cur_Mdist = cmaze.manhattan_distance(
+						goal_found % cmaze.get_width(),
+						goal_found / cmaze.get_width(),
+						start_state % cmaze.get_width(),
+						start_state / cmaze.get_width());
+				multidot_goal_cell goal_cell = new multidot_goal_cell(
+						goal_found, cur_Mdist);
+				gc_que.add(goal_cell);
+				cur_pos = goal_found;
+			}
+			chosengoal = gc_que.poll();
+			// System.out.println("chsen goal" + chosengoal.get_pos());
+			goal_state = chosengoal.get_pos();
+			nextpos = -100;
+			// clean the visited array,because we may need to go to a cell
+			// visited before again
+			for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
+				visited[i] = 0;
+			}
+			// clean the previous table first.
+			for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
+				cmaze_cell[i] = null;
+			}
+			// based on the new goal and start, make a new heuristic table.
+			for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
+				if (cmaze.maze_index(i % cmaze.get_width(),
+						i / cmaze.get_width()) == '%')
+					cmaze_cell[i] = new Maze_cell(i, -1);
+				else
+					cmaze_cell[i] = new Maze_cell(i, cmaze.manhattan_distance(i
+							% cmaze.get_width(), i / cmaze.get_width(),
+							goal_state % cmaze.get_width(),
+							goal_state / cmaze.get_width()));
+			}
+			mc_que.add(cmaze_cell[start_state]);
+		}
+
+		System.out.println("pathcost" + pathcost);
+		return 0;
+	}*/
+
 	/*
 	 * input: cmaze - currentmaze turn_cost - how many does fm_cost - how many
 	 * does go forward cost return: 0 - if success, -1 if fail solve a maze
@@ -820,28 +1107,27 @@ public class Maze_pathFinding {
 		}
 		return -1;
 	}
-	
+
 	/*
-	 * input: cmaze - current maze
-	 * return 0 when success, -1 if fail
-	 * solve a maze with A* search
+	 * input: cmaze - current maze return 0 when success, -1 if fail solve a
+	 * maze with A* search
 	 */
 	public int penalize_SolveMazeAStar(Maze cmaze) {
-		
+
 		if (cmaze == null) // if cmaze is null, fail
 			return -1;
 
-		int goal_state = cmaze.get_goal_state(); //end point in maze
-		int start_state = cmaze.get_start_state(); //start point in maze
+		int goal_state = cmaze.get_goal_state(); // end point in maze
+		int start_state = cmaze.get_start_state(); // start point in maze
 		int nextpos = -100;
 		int pathcost = 0;
 		char[] visited = new char[cmaze.get_height() * cmaze.get_width()];
-		
-		//data structure that holds all maze cells in maze
+
+		// data structure that holds all maze cells in maze
 		Maze_cell[] cmaze_cell = new Maze_cell[cmaze.get_height()
 				* cmaze.get_width()];
-		
-		//initialize cmaze_cell
+
+		// initialize cmaze_cell
 		for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
 			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_height()) == '%')
 				cmaze_cell[i] = new Maze_cell(i, -1);
@@ -850,38 +1136,40 @@ public class Maze_pathFinding {
 						% cmaze.get_width(), i / cmaze.get_height(), goal_state
 						% cmaze.get_width(), goal_state / cmaze.get_height()));
 		}
-		
-		//set up priority queue for cmaze
+
+		// set up priority queue for cmaze
 		Comparator<Maze_cell> mc_comp = new Maze_cell();
 		PriorityQueue<Maze_cell> mc_que = new PriorityQueue<Maze_cell>(
 				cmaze.get_height() * cmaze.get_width(), mc_comp);
-		
-		//start to do cmaze expansion
+
+		// start to do cmaze expansion
 		mc_que.add(cmaze_cell[start_state]);
 		cmaze_cell[start_state].set_level(0);
 		Maze_cell temp = null;
-		
-		//similar to BFS expansion but need to update the parent information when find a smaller total cost
+
+		// similar to BFS expansion but need to update the parent information
+		// when find a smaller total cost
 		// for the same maze cell in queue
 		while (mc_que.size() != 0) {
 
-			temp = mc_que.poll(); //pop the smallest item in queue
+			temp = mc_que.poll(); // pop the smallest item in queue
 
-			visited[temp.get_index()] = 'V'; //mark as visited
-			
-			//check the four neighbors
-			//left point
+			visited[temp.get_index()] = 'V'; // mark as visited
+
+			// check the four neighbors
+			// left point
 			if (temp.get_index() - 1 > 0) {
 				nextpos = temp.get_index() - 1;
-				//Check the point is already in queue or not
-				//If the point is already in queue, compare the total cost for 
-				//the current path and the previous path
-				//Select the smaller cost path and store the result in cmaze_cell
+				// Check the point is already in queue or not
+				// If the point is already in queue, compare the total cost for
+				// the current path and the previous path
+				// Select the smaller cost path and store the result in
+				// cmaze_cell
 				if (visited[nextpos] != 'V'
 						&& cmaze.maze_index(nextpos % cmaze.get_width(),
 								nextpos / cmaze.get_width()) != '%') {
-					
-					//if exist, compare path cost and restore if necessary
+
+					// if exist, compare path cost and restore if necessary
 					if (mc_que.contains(cmaze_cell[nextpos])) {
 						int new_tc = cmaze_cell[nextpos].get_heuristic()
 								+ temp.get_level() + 1;
@@ -894,7 +1182,7 @@ public class Maze_pathFinding {
 									.set_totalCost(temp.get_level() + 1);
 							mc_que.add(cmaze_cell[nextpos]);
 						}
-					} else { //if not exist, store information required
+					} else { // if not exist, store information required
 						// n_node++;
 						cmaze_cell[nextpos].set_parent(temp.get_index());
 						cmaze_cell[nextpos].set_level(temp.get_level() + 1);
@@ -903,9 +1191,10 @@ public class Maze_pathFinding {
 					}
 				}
 			}
-			
-			// the next 3 steps are the same except for neighbors from right, bottom and top
-			//right neighbor
+
+			// the next 3 steps are the same except for neighbors from right,
+			// bottom and top
+			// right neighbor
 			if (temp.get_index() + 1 < cmaze.get_height() * cmaze.get_width()) {
 				nextpos = temp.get_index() + 1;
 				if (visited[nextpos] != 'V'
@@ -932,7 +1221,7 @@ public class Maze_pathFinding {
 					}
 				}
 			}
-			//bottom neighbor
+			// bottom neighbor
 			if (temp.get_index() + cmaze.get_width() < cmaze.get_height()
 					* cmaze.get_width()) {
 				nextpos = temp.get_index() + cmaze.get_width();
@@ -960,7 +1249,7 @@ public class Maze_pathFinding {
 					}
 				}
 			}
-			//top neighbor
+			// top neighbor
 			if (temp.get_index() - cmaze.get_width() > 0) {
 				nextpos = temp.get_index() - cmaze.get_width();
 				if (visited[nextpos] != 'V'
@@ -987,8 +1276,8 @@ public class Maze_pathFinding {
 				}
 			}
 		}
-		
-		//print out the path and calculate the total path cost
+
+		// print out the path and calculate the total path cost
 		temp = cmaze_cell[goal_state];
 		int curr = temp.get_index();
 		while (curr != start_state) {

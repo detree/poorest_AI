@@ -12,11 +12,13 @@ public class Maze_cell implements Comparator<Maze_cell>{
 	public Maze_cell(){
 		index = -1;
 		heuristic = -1;
+		parent = -1;
 	}
 	
 	public Maze_cell(int i, int h){
 		index = i;
 		heuristic = h;
+		parent = -1;
 	}
 	
 	public int get_parent(){
@@ -33,6 +35,10 @@ public class Maze_cell implements Comparator<Maze_cell>{
 	
 	public int get_index(){
 		return this.index;
+	}
+	
+	public void set_index(int i){
+		this.index=i;
 	}
 	
 	public int get_level(){

@@ -345,23 +345,7 @@ System.out.println("end TESTING===================");
 	{
 		if (cmaze == null) // if cmaze is null, fail
 			return -1;
-		
-/*///////////////////////////////////////
-maze_cell_g cell1 = new maze_cell_g();
-maze_cell_g cell2 = new maze_cell_g();
-cell1.set_level(0);
-cell1.set_totalCost(0);
-cell1.set_ghost_pos(1);
-cell1.set_ghost_dir(0);
-cell1.set_parent(cell1);
-cell2.set_level(0);
-cell2.set_parent(cell1);
-cell2.set_totalCost(0);
-cell2.set_ghost_pos(0);
-cell2.set_ghost_dir(0);
-System.out.println("Test if equal:"+(cell1==cell2));
-///////////////////////////////////////*/
-		
+		int node_expanded=0;
 		int goal_state = cmaze.get_goal_state(); //end point in maze
 		int start_state = cmaze.get_start_state(); //start point in maze
 		int ghost_start = cmaze.get_ghost_start();
@@ -410,6 +394,7 @@ System.out.println("Test if equal:"+(cell1==cell2));
 		{
 			//get the current point need to be considered
 			curr = mc_que.poll();
+			if(curr.get_index()==goal_state) break;
 			visited[curr.get_index()][curr.get_ghost_pos()-ghost_left][curr.get_ghost_dir()] = 'V';
 			gcurrpos = curr.get_ghost_pos();
 			//calculate the ghost's next position.
@@ -469,6 +454,7 @@ System.out.println("Test if equal:"+(cell1==cell2));
 							cells[nextpos][gnextpos-ghost_left][gnextdir]. set_ghost_dir(gnextdir);
 							cells[nextpos][gnextpos-ghost_left][gnextdir]. set_ghost_pos(gnextpos);
 							mc_que.add(cells[nextpos][gnextpos-ghost_left][gnextdir]);
+							node_expanded++;
 //System.out.println("P has next at("+nextpos%width+","+nextpos/width+")");
 //if(nextpos%width == 1 && nextpos/width ==1 )
 //{
@@ -484,7 +470,7 @@ System.out.println("Test if equal:"+(cell1==cell2));
 		System.out.println("finished searching");
 		
 		curr = cells[goal_state][0][0];
-		if(curr.get_totalCost()==-1) curr.set_totalCost(9999999);
+		if(curr.get_totalCost()<=0) curr.set_totalCost(9999999);
 		for(int i=0; i<ghostn; i++)
 			for(int j=0; j<2; j++)
 			{
@@ -506,250 +492,195 @@ System.out.println("Test if equal:"+(cell1==cell2));
 			//System.out.println("next point at:"+curr.get_index());
 		}
 		System.out.println("total cost="+pathcost);
+		System.out.println("node expanded:"+node_expanded);
+		return 0;
+	}
+	
+	
+	public int Ghost_Approx_SolveMazeAStar(Maze cmaze)
+	{
+		if (cmaze == null) // if cmaze is null, fail
+			return -1;
+		int node_expanded=0;
+		int goal_state = cmaze.get_goal_state(); //end point in maze
+		int start_state = cmaze.get_start_state(); //start point in maze
+		int ghost_start = cmaze.get_ghost_start();
+		int width = cmaze.get_width(), height = cmaze.get_height(), totaln = width*height, ghostn=1;
+		for(int tempi=ghost_start-1; cmaze.maze_index(tempi%width, tempi/width)=='g'; tempi--)
+			cmaze.fill_in_maze(tempi%width, tempi/width, ' ');
+		for(int tempi=ghost_start+1; cmaze.maze_index(tempi%width, tempi/width)=='g'; tempi++)
+			cmaze.fill_in_maze(tempi%width, tempi/width, ' ');
+		
+		char [][][]visited = new char[totaln][totaln][4];
+		//data structure for all of the cells in the maze
+		maze_cell_g [][][]cells = new maze_cell_g[totaln][totaln][4];
+	
+		Comparator<maze_cell_g> mc_comp = new maze_cell_g();
+		PriorityQueue<maze_cell_g> mc_que = 
+							new PriorityQueue<maze_cell_g>(totaln*totaln*4, mc_comp);
+	
+		//initialize maze cells
+		for (int i = 0; i < totaln; i++)
+			for(int j=0; j<totaln; j++)
+				for(int k=0; k<4; k++){
+					if (cmaze.maze_index( i%width, i/width ) == '%')
+						cells[i][j][k] = new maze_cell_g(i, j, k, -1);
+					else
+						cells[i][j][k] = new maze_cell_g(i, j, k, cmaze.manhattan_distance
+								(i%width, i/width, goal_state%width, goal_state/width));
+			}
+	
+		//initialize the starting point and add it into the queue
+		cells[start_state][ghost_start][1].set_level(0);
+		cells[start_state][ghost_start][1].set_parent(null);
+		cells[start_state][ghost_start][1].set_totalCost(0);
+		cells[start_state][ghost_start][1].set_ghost_pos(ghost_start);
+		cells[start_state][ghost_start][1].set_ghost_dir(1);
+		mc_que.add( cells[start_state][ghost_start][1] );
+		
+		//the next while loop is for searching the path.
+		maze_cell_g curr = null;
+		int currpos=-100, nextpos = -100;
+		int gcurrpos = -100, gnextpos = -100, gnextdir=-1;
+		int pathcost = 0;
+		final int dir_vector[] = {-1, +1, width, -width};
+		while( mc_que.size() > 0 )
+		{
+			//get the current point need to be considered
+			curr = mc_que.poll();
+			currpos = curr.get_index();
+			if(currpos == goal_state) break;
+			gcurrpos = curr.get_ghost_pos();
+			visited[currpos][gcurrpos][curr.get_ghost_dir()] = 'V';
+			
+			//calculate the ghost's next position============================
+			char []g_visited = new char [totaln];
+			Maze_cell []gcell = new Maze_cell[totaln];
+			for(int i=0; i<totaln; i++)
+				gcell[i] = new Maze_cell(i, -1);
+			Maze_cell gcurr = new Maze_cell();
+			Comparator<Maze_cell> g_comp = new Maze_cell();
+			PriorityQueue<Maze_cell> g_que = 
+								new PriorityQueue<Maze_cell>(totaln, g_comp);
+			int gtemp_next;
+
+			gcell[gcurrpos].set_index(gcurrpos);
+			gcell[gcurrpos].set_level(0);
+			g_que.add(gcell[gcurrpos]);
+			while(g_que.size()>0){
+				gcurr = g_que.poll();
+				g_visited[gcurr.get_index()] = 'V';
+//System.out.println(gcurr.get_index()%width+","+gcurr.get_index()/width);
+				if(gcurr.get_index() == currpos) break;
+				for(int dir_num=0; dir_num<4; dir_num++)
+				{
+					gtemp_next = gcurr.get_index() + dir_vector[dir_num];
+					//if( (gtemp_next%width)<(width/2) && gtemp_next/width != ghost_start/width)
+					//	continue;
+					if( g_visited[gtemp_next] != 'V' && cmaze.maze_index(gtemp_next%width, gtemp_next/width) != '%' )
+					{
+						int new_totalcost= gcurr.get_level() + 1;
+						if( g_que.contains( gcell[gtemp_next]) && new_totalcost < gcell[gtemp_next].get_totalCost() )
+						{
+							//in this situation the queue has the next position, we need to check whether
+							//there is a shorter path to it. If there is, delete the previous one in the queue.
+							mc_que.remove( gcell[gtemp_next] );
+						}							
+						if( !g_que.contains(gcell[gtemp_next]) )
+						{
+							gcell[gtemp_next]. set_parent(gcurr.get_index());
+							gcell[gtemp_next]. set_level(gcurr.get_level() + 1);
+							gcell[gtemp_next]. set_totalCost(new_totalcost);
+							g_que.add(gcell[gtemp_next]);
+						}
+					}
+				}
+			}
+			//ghost's next position calculated===============================
+//System.out.println("ghost search end");
+			gnextpos = currpos;
+			while(gcell[gnextpos].get_parent() != gcurrpos)
+				gnextpos = gcell[gnextpos].get_parent();
+			for(int dir_num=0; dir_num<4; dir_num++)
+				if(gnextpos == gcurrpos+dir_vector[dir_num])
+					gnextdir = dir_num;
+			cmaze.fill_in_maze(gcurrpos%width, gcurrpos/width, ' ');
+			cmaze.fill_in_maze(gnextpos%width, gnextpos/width, 'g');
+			
+System.out.println("ghost at("+gcurrpos%width+","+gcurrpos/width+"), next at("
+		+gnextpos%width+","+gnextpos/width+")");
+//System.out.println("P curr at("+curr.get_index()%width+","+curr.get_index()/width+")");
+			if(curr.get_index() == gcurrpos)
+				System.out.println("Seems BIG ERROR in finding path");
+			//check the four neighbors
+			//left, right, bottom, top point============================================================
+			for(int dir_num=0; dir_num<4; dir_num++)
+			{
+				nextpos = curr.get_index() + dir_vector[dir_num];
+				if( nextpos>0 && visited[nextpos][gnextpos][gnextdir] != 'V' && cmaze.maze_index(nextpos%width, nextpos/width) != '%' )
+				{
+					//now without the ghost, this is a valid position. MAY NOT in the queue YET
+					if( !( (nextpos == gcurrpos && curr.get_index() == gnextpos) || nextpos == gnextpos ) )
+					{
+						//now we know that this next position has no conflict with the ghost.
+						int new_totalcost= cells[nextpos][gnextpos][gnextdir]. get_heuristic() + curr.get_level() + 1;
+						if( mc_que.contains( cells[nextpos][gnextpos][gnextdir] ) && new_totalcost < cells[nextpos][gnextpos][gnextdir].get_totalCost() )
+						{
+							//in this situation the queue has the next position, we need to check whether
+							//there is a shorter path to it. If there is, delete the previous one in the queue.
+							mc_que.remove( cells[nextpos][gnextpos][gnextdir] );
+						}
+						if( !mc_que.contains( cells[nextpos][gnextpos][gnextdir]) )
+						{
+							cells[nextpos][gnextpos][gnextdir]. set_parent(curr);
+							cells[nextpos][gnextpos][gnextdir]. set_level(curr.get_level() + 1);
+							cells[nextpos][gnextpos][gnextdir]. set_totalCost(new_totalcost);
+							cells[nextpos][gnextpos][gnextdir]. set_ghost_dir(gnextdir);
+							cells[nextpos][gnextpos][gnextdir]. set_ghost_pos(gnextpos);
+							mc_que.add(cells[nextpos][gnextpos][gnextdir]);
+							node_expanded++;
+//System.out.println("P has next at("+nextpos%width+","+nextpos/width+")");
+//if(nextpos%width == 1 && nextpos/width ==1 )
+//{
+//	System.out.println("special P parent:"+cells[nextpos][gnextpos-ghost_left][gnextdir]. get_parent().get_index());
+//	System.out.println("special P gnextpos:"+gnextpos+"g next dir:"+gnextdir);
+//	System.out.println("special P curr at("+curr.get_index()%width+","+curr.get_index()/width+")");
+//}
+						}
+					}
+				}
+			}
+		}
+		System.out.println("finished searching");
+		
+		curr = cells[goal_state][0][0];
+		if(curr.get_totalCost()<=0) curr.set_totalCost(9999999);
+		for(int i=0; i<totaln; i++)
+			for(int j=0; j<4; j++)
+			{
+				if(cells[goal_state][i][j].get_totalCost() >0 &&
+					cells[goal_state][i][j].get_parent() != null &&
+					curr.get_totalCost()>cells[goal_state][i][j].get_totalCost())
+				{
+//System.out.println("dest parent at:"+cells[goal_state][i][j].get_parent().get_index()%width+","+cells[goal_state][i][j].get_parent().get_index()/width);
+					curr = cells[goal_state][i][j];
+				}
+			}
+System.out.println("pathcost:"+curr.get_level());
+System.out.println("node expanded:"+node_expanded);
+		while( curr != null )
+		{
+//System.out.println("point at:"+curr.get_index()%width+","+curr.get_index()/width);
+			pathcost++;
+			cmaze.fill_in_maze(curr.get_index() % width, curr.get_index() / width, '.');
+			curr = curr.get_parent();
+			//System.out.println("next point at:"+curr.get_index());
+		}
+		System.out.println("total cost="+pathcost);
 		return 0;
 	}
 
-/*	
-public int multidots_SolveMazeAStar(Maze cmaze) {
-		if (cmaze == null) // if cmaze is null, fail
-			return -1;
-		//cur_pos is used to find all the goals
-		int cur_pos = 0;
-		int goal_found;
-		int start_state = cmaze.get_start_state(); //start point in maze
-		//initialize the priority queue fo goals
-		Comparator<multidot_goal_cell> gc_comp = new multidot_goal_cell();
-		PriorityQueue<multidot_goal_cell> gc_que = new PriorityQueue<multidot_goal_cell>(gc_comp);
-		//find the goal that has the smallest heuristic vaule, at the same time count for number fo goals.
-		int n_goals = -1;
-		for(int i = 0; (goal_found = cmaze.find_goals(cur_pos)) != -1; i++){
-			int cur_Mdist = cmaze.manhattan_distance(start_state%cmaze.get_width(), start_state/cmaze.get_width(), goal_found%cmaze.get_width(),goal_found/cmaze.get_width());
-			multidot_goal_cell goal_cell = new multidot_goal_cell(goal_found,cur_Mdist);
-			gc_que.add(goal_cell);
-			n_goals = i;
-			cur_pos = goal_found;
-		}
-		goal_found ++;
-		//set the goal with minimum heuristic value as the chosen goal, it's index is the goal_state
-		multidot_goal_cell chosengoal = gc_que.poll();
-		//System.out.println("chosen" + chosengoal.get_pos());
-		int goal_state = chosengoal.get_pos();
-		
-		int nextpos = -100;
-		int pathcost = 0;
-		char[] visited = new char[cmaze.get_height() * cmaze.get_width()];
-		
-		//data structure that holds all maze cells in maze
-		Maze_cell[] cmaze_cell = new Maze_cell[cmaze.get_height()
-				* cmaze.get_width()];
-		
-		//initialize cmaze_cell
-		for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
-			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_width()) == '%')
-				cmaze_cell[i] = new Maze_cell(i, -1);
-			else
-				cmaze_cell[i] = new Maze_cell(i, cmaze.manhattan_distance(i
-						% cmaze.get_width(), i / cmaze.get_width(), goal_state
-						% cmaze.get_width(), goal_state / cmaze.get_width()));
-		}
-		
-		//set up priority queue for cmaze
-		Comparator<Maze_cell> mc_comp = new Maze_cell();
-		PriorityQueue<Maze_cell> mc_que = new PriorityQueue<Maze_cell>(
-				cmaze.get_height() * cmaze.get_width(), mc_comp);
-		
-		//start to do cmaze expansion
-		mc_que.add(cmaze_cell[start_state]);
-		cmaze_cell[start_state].set_level(0);
-		Maze_cell temp = null;
-		int n_node = 1;
-		int n_goal_found = 1;
-		//similar to BFS expansion but need to update the parent information when find a smaller total cost
-		// for the same maze cell in queue
-		while(n_goals != n_goal_found)
-		{
-			while (mc_que.size() != 0) {
 
-				temp = mc_que.poll(); //pop the smallest item in queue
-
-				visited[temp.get_index()] = 'V'; //mark as visited
-			
-				//check the four neighbors
-				//left point
-				if (temp.get_index() - 1 > 0) {
-					nextpos = temp.get_index() - 1;
-					//Check the point is already in queue or not
-					//If the point is already in queue, compare the total cost for 
-					//the current path and the previous path
-					//Select the smaller cost path and store the result in cmaze_cell
-					if (visited[nextpos] != 'V'
-							&& cmaze.maze_index(nextpos % cmaze.get_width(),
-									nextpos / cmaze.get_width()) != '%') {
-					
-						//if exist, compare path cost and restore if necessary
-						if (mc_que.contains(cmaze_cell[nextpos])) {
-							int new_tc = cmaze_cell[nextpos].get_heuristic()
-									+ temp.get_level() + 1;
-	
-							if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
-								mc_que.remove(cmaze_cell[nextpos]);
-								cmaze_cell[nextpos].set_parent(temp.get_index());
-								cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-								cmaze_cell[nextpos]
-										.set_totalCost(temp.get_level() + 1);
-								mc_que.add(cmaze_cell[nextpos]);
-							}
-						} else { //if not exist, store information required
-							n_node++;
-							cmaze_cell[nextpos].set_parent(temp.get_index());
-							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-							cmaze_cell[nextpos].set_totalCost(temp.get_level() + 1);
-							mc_que.add(cmaze_cell[nextpos]);
-						}
-					}
-				}
-				
-				// the next 3 steps are the same except for neighbors from right, bottom and top
-				//right neighbor
-				if (temp.get_index() + 1 < cmaze.get_height() * cmaze.get_width()) {
-					nextpos = temp.get_index() + 1;
-					if (visited[nextpos] != 'V'
-							&& cmaze.maze_index(nextpos % cmaze.get_width(),
-									nextpos / cmaze.get_width()) != '%') {
-						if (mc_que.contains(cmaze_cell[nextpos])) {
-							int new_tc = cmaze_cell[nextpos].get_heuristic()
-									+ temp.get_level() + 1;
-	
-							if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
-								mc_que.remove(cmaze_cell[nextpos]);
-								cmaze_cell[nextpos].set_parent(temp.get_index());
-								cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-								cmaze_cell[nextpos]
-										.set_totalCost(temp.get_level() + 1);
-								mc_que.add(cmaze_cell[nextpos]);
-							}
-						} else {
-							// n_node++;
-							cmaze_cell[nextpos].set_parent(temp.get_index());
-							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-							cmaze_cell[nextpos].set_totalCost(temp.get_level() + 1);
-							mc_que.add(cmaze_cell[nextpos]);
-						}
-					}
-				}
-				//bottom neighbor
-				if (temp.get_index() + cmaze.get_width() < cmaze.get_height()
-						* cmaze.get_width()) {
-					nextpos = temp.get_index() + cmaze.get_width();
-					if (visited[nextpos] != 'V'
-							&& cmaze.maze_index(nextpos % cmaze.get_width(),
-									nextpos / cmaze.get_width()) != '%') {
-						if (mc_que.contains(cmaze_cell[nextpos])) {
-							int new_tc = cmaze_cell[nextpos].get_heuristic()
-									+ temp.get_level() + 1;
-	
-							if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
-								mc_que.remove(cmaze_cell[nextpos]);
-								cmaze_cell[nextpos].set_parent(temp.get_index());
-								cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-								cmaze_cell[nextpos]
-										.set_totalCost(temp.get_level() + 1);
-								mc_que.add(cmaze_cell[nextpos]);
-							}
-						} else {
-							// n_node++;
-							cmaze_cell[nextpos].set_parent(temp.get_index());
-							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-							cmaze_cell[nextpos].set_totalCost(temp.get_level() + 1);
-							mc_que.add(cmaze_cell[nextpos]);
-						}
-					}
-				}
-				//top neighbor
-				if (temp.get_index() - cmaze.get_width() > 0) {
-					nextpos = temp.get_index() - cmaze.get_width();
-					if (visited[nextpos] != 'V'
-							&& cmaze.maze_index(nextpos % cmaze.get_width(),
-									nextpos / cmaze.get_width()) != '%') {
-						if (mc_que.contains(cmaze_cell[nextpos])) {
-							int new_tc = cmaze_cell[nextpos].get_heuristic()
-									+ temp.get_level() + 1;
-							if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
-								mc_que.remove(cmaze_cell[nextpos]);
-								cmaze_cell[nextpos].set_parent(temp.get_index());
-								cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-								cmaze_cell[nextpos]
-										.set_totalCost(temp.get_level() + 1);
-								mc_que.add(cmaze_cell[nextpos]);
-							}
-						} else {
-							// n_node++;
-							cmaze_cell[nextpos].set_parent(temp.get_index());
-							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-							cmaze_cell[nextpos].set_totalCost(temp.get_level() + 1);
-							mc_que.add(cmaze_cell[nextpos]);
-						}
-					}
-				}
-			}	
-			temp = cmaze_cell[goal_state];
-			//get the index of the goal and mark it
-			int curr = temp.get_index();
-			char char_on_goal = (char)(n_goal_found + 48);
-			cmaze.fill_in_maze(curr % cmaze.get_width(),
-					curr / cmaze.get_width(), char_on_goal);
-			int perserve_curr = curr;
-			//count the path length
-			while (curr != start_state) {
-				pathcost++;
-				curr = temp.get_parent();
-				temp = cmaze_cell[curr];
-			}
-			//now the pacman start from this position to get to one of the other remaining goals
-			start_state = perserve_curr;
-			//System.out.println("n_goals" + n_goals);
-			//System.out.println("goals_found" + n_goal_found);
-			//show that one more goal is found
-			n_goal_found ++;
-			gc_que.clear();
-			//find all the goals
-			cur_pos = 0;
-			//find the nearest goal again
-			for(int i = 0; (goal_found = cmaze.find_goals(cur_pos)) != -1; i++){
-				int cur_Mdist = cmaze.manhattan_distance(
-				goal_found % cmaze.get_width(), goal_found/cmaze.get_width(), start_state%cmaze.get_width(),start_state/cmaze.get_width());
-				multidot_goal_cell goal_cell = new multidot_goal_cell(goal_found,cur_Mdist);
-				gc_que.add(goal_cell);
-				cur_pos = goal_found;
-			}
-			chosengoal = gc_que.poll();
-			//System.out.println("chsen goal" + chosengoal.get_pos());
-			goal_state = chosengoal.get_pos();
-			nextpos = -100;
-			//clean the visited array,because we may need to go to a cell visited before again
-			for(int i = 0; i < cmaze.get_width()*cmaze.get_height();i++)
-			{
-				visited[i]  = 0;
-			}
-			//clean the previous table first.
-			for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
-				cmaze_cell[i] = null;
-			}
-			//based on the new goal and start, make a new heuristic table.
-			for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
-				if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_width()) == '%')
-					cmaze_cell[i] = new Maze_cell(i, -1);
-				else
-					cmaze_cell[i] = new Maze_cell(i, cmaze.manhattan_distance(i
-						% cmaze.get_width(), i / cmaze.get_width(), goal_state
-						% cmaze.get_width(), goal_state / cmaze.get_width()));
-			}
-			mc_que.add(cmaze_cell[start_state]);
-		}
-		
-		System.out.println("pathcost" + pathcost);
-return 0;
-}*/
 
 	/*
 	 * input: cmaze - currentmaze turn_cost - how many does fm_cost - how many

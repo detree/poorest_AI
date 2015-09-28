@@ -79,6 +79,17 @@ public class maze_cell_g implements Comparator<maze_cell_g>{
 		this.ghost_dir = dir;
 	}
 	
+	
+	public boolean equals(maze_cell_g other)
+	{
+		if( this.get_index() == other. get_index() && this.get_ghost_pos() == other.get_ghost_pos() &&
+				this.get_ghost_dir() == other. get_ghost_dir() )
+			return true;
+		else
+			return false;
+			
+	};
+	
 	@Override
 	public int compare(maze_cell_g m1, maze_cell_g m2) {
 		// TODO Auto-generated method stub

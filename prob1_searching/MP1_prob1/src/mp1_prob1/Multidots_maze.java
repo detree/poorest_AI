@@ -18,16 +18,29 @@ public class Multidots_maze {
 		PriorityQueue<multidot_goal_cell> gc_que = new PriorityQueue<multidot_goal_cell>(
 				gc_comp);
 		// find the goal that has the smallest heuristic vaule, at the same time
-		// count for number fo goals.
+		// count for number of goals.
 		int n_goals = -1;
+		System.out.println("mazesize" + cmaze.get_width() * cmaze.get_height());
 		for (int i = 0; (goal_found = cmaze.find_goals(cur_pos)) != -1; i++) {
 			int cur_Mdist = cmaze.manhattan_distance(
 					start_state % cmaze.get_width(),
 					start_state / cmaze.get_width(),
 					goal_found % cmaze.get_width(),
 					goal_found / cmaze.get_width());
+			
 			multidot_goal_cell goal_cell = new multidot_goal_cell(goal_found,
 					cur_Mdist);
+			
+			int n_wall = goal_cell.set_n_wall(cmaze);
+			if(n_wall == 2)
+				goal_cell.set_heurist(cur_Mdist * 4);
+			
+			else if(n_wall== 1)
+				goal_cell.set_heurist(cur_Mdist * 8);
+			
+			if(n_wall== 0)
+				goal_cell.set_heurist(cur_Mdist * 16);
+			
 			gc_que.add(goal_cell);
 			n_goals = i;
 			cur_pos = goal_found;
@@ -216,18 +229,58 @@ public class Multidots_maze {
 			// get the index of the goal and mark it
 			int curr = temp.get_index();
 			char char_on_goal;
-			if(n_goal_found < 10)
-				char_on_goal = (char) (n_goal_found + 48);
-			else if(n_goal_found < 34)
-				char_on_goal  =  (char)(n_goal_found + 55);
-			else 
-				char_on_goal = (char)(n_goal_found + 63);
-			cmaze.fill_in_maze(curr % cmaze.get_width(),
-					curr / cmaze.get_width(), char_on_goal);
+			
 			int perserve_curr = curr;
 			// count the path length
 			while (curr != start_state) {
 				pathcost++;
+				if(cmaze.maze_index(curr%cmaze.get_width(), curr/cmaze.get_width()) == '.')
+				{
+					if(n_goal_found < 10)
+						char_on_goal = (char) (n_goal_found + 48);
+					else if(n_goal_found < 34)
+						char_on_goal  =  (char)(n_goal_found + 55);
+					else 
+						char_on_goal = (char)(n_goal_found + 63);
+					//cmaze.fill_in_maze(curr % cmaze.get_width(),
+						//	curr / cmaze.get_width(), '1');
+					if(pathcost < 9)
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'A');
+					else if(pathcost < 21)
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'B');
+					else if(pathcost < 35)
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'C');
+					else if (pathcost < 75) {
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'D');
+					}
+					else if(pathcost < 99)
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'E');
+					else if (pathcost < 182) {
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'F');
+					}
+					else if (pathcost < 195) {
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'G');
+					}
+					else if (pathcost < 212) {
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'H');
+					}
+					else if(pathcost < 238)
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'I');
+					else {
+						cmaze.fill_in_maze(curr % cmaze.get_width(),
+								curr / cmaze.get_width(), 'J');
+					}
+					n_goal_found ++;
+				}
 				curr = temp.get_parent();
 				temp = cmaze_cell[curr];
 			}
@@ -238,7 +291,7 @@ public class Multidots_maze {
 			// System.out.println("n_goals" + n_goals);
 			// System.out.println("goals_found" + n_goal_found);
 			// show that one more goal is found
-			n_goal_found++;
+			//n_goal_found++;
 			if(n_goals == n_goal_found){
 				System.out.println("pathcost:" + pathcost);
 				System.out.println("number of nodes:" + n_node);
@@ -256,6 +309,17 @@ public class Multidots_maze {
 						start_state / cmaze.get_width());
 				multidot_goal_cell goal_cell = new multidot_goal_cell(
 						goal_found, cur_Mdist);
+				
+				int n_wall = goal_cell.set_n_wall(cmaze);
+				if(n_wall == 2)
+					goal_cell.set_heurist(cur_Mdist * 4);
+				
+				else if(n_wall== 1)
+					goal_cell.set_heurist(cur_Mdist * 8);
+				
+				if(n_wall== 0)
+					goal_cell.set_heurist(cur_Mdist * 16);
+				
 				gc_que.add(goal_cell);
 				cur_pos = goal_found;
 			}

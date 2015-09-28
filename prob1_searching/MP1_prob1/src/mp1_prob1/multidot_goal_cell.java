@@ -3,7 +3,7 @@ package mp1_prob1;
 import java.util.Comparator;
 
 public class multidot_goal_cell implements Comparator<multidot_goal_cell>{
-	
+		private int n_wall;
 		private int pos;
 		private int heuristic;
 		
@@ -26,7 +26,7 @@ public class multidot_goal_cell implements Comparator<multidot_goal_cell>{
 			return this.pos;
 		}
 		
-		public void set_totalCost(int t){
+		public void set_heurist(int t){
 			this.heuristic =  t;
 		}
 
@@ -37,7 +37,28 @@ public class multidot_goal_cell implements Comparator<multidot_goal_cell>{
 			else 
 				return this.pos;
 		}
-
+		public int set_n_wall(Maze cmaze)
+		{
+			//System.out.println(this.pos);
+		
+			if(this.pos + 1 < cmaze.get_width() * cmaze.get_height())
+			 if(cmaze.maze_index( (this.pos+1) % cmaze.get_width(), (this.pos+1) / cmaze.get_width() ) == '%' )
+				n_wall++;
+			
+			if(this.pos - 1 > 0)
+			 if(cmaze.maze_index( (this.pos-1) % cmaze.get_width(), (this.pos-1) / cmaze.get_width() ) == '%' )
+				n_wall++;
+			
+			if(this.pos + cmaze.get_width() < cmaze.get_width() * cmaze.get_height())
+			 if(cmaze.maze_index( (this.pos+cmaze.get_width()) % cmaze.get_width(), (this.pos+cmaze.get_width()) / cmaze.get_width() ) == '%' )
+				n_wall++;
+			
+			if(this.pos - cmaze.get_width() > cmaze.get_width() * cmaze.get_height())
+			 if(cmaze.maze_index( (this.pos-cmaze.get_width()) % cmaze.get_width(), (this.pos-cmaze.get_width()) / cmaze.get_width() ) == '%' )
+				n_wall++;
+			
+			return this.n_wall; 
+		}
 		@Override
 		public int compare(multidot_goal_cell g1,  multidot_goal_cell g2) {
 			// TODO Auto-generated method stub

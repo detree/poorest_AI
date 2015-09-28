@@ -850,11 +850,11 @@ public class Maze_pathFinding {
 		int nextpos = -100;
 		int pathcost = 0;
 		char[] visited = new char[cmaze.get_height() * cmaze.get_width()];
-
+		int total_node = 0;
 		// data structure that holds all maze cells in maze
 		Maze_cell[] cmaze_cell = new Maze_cell[cmaze.get_height()
 				* cmaze.get_width()];
-
+		cmaze.heuristic_wall_count();
 		// initialize cmaze_cell
 		for (int i = 0; i < cmaze.get_width() * cmaze.get_height(); i++) {
 			if (cmaze.maze_index(i % cmaze.get_width(), i / cmaze.get_width()) == '%')
@@ -862,8 +862,10 @@ public class Maze_pathFinding {
 			else
 				cmaze_cell[i] = new Maze_cell(i, cmaze.manhattan_distance(i
 						% cmaze.get_width(), i / cmaze.get_width(), goal_state
-						% cmaze.get_width(), goal_state / cmaze.get_width()));
+						% cmaze.get_width(), goal_state / cmaze.get_width())
+						+cmaze.hval_wall(i% cmaze.get_width(), i / cmaze.get_width()) );
 		}
+
 
 		// set up priority queue for cmaze
 		Comparator<Maze_cell> mc_comp = new Maze_cell();
@@ -874,6 +876,7 @@ public class Maze_pathFinding {
 		mc_que.add(cmaze_cell[start_state]);
 		cmaze_cell[start_state].set_level(0);
 		cmaze_cell[start_state].set_dir('E');
+		//cmaze_cell[start_state].set_heuristic(0);
 		Maze_cell temp = null;
 
 		// similar to BFS expansion but need to update the parent information
@@ -882,12 +885,16 @@ public class Maze_pathFinding {
 		while (mc_que.size() != 0) {
 
 			temp = mc_que.poll(); // pop the smallest item in queue
-
+			
+			if(temp.get_index() == goal_state)
+				break;
+			
 			visited[temp.get_index()] = 'V'; // mark as visited
 
 			// check the four neighbors
 			// left point
 			if (temp.get_index() - 1 > 0) {
+
 				nextpos = temp.get_index() - 1;
 				// Check the point is already in queue or not
 				// If the point is already in queue, compare the total cost for
@@ -901,24 +908,28 @@ public class Maze_pathFinding {
 					// if exist, compare path cost and restore if necessary
 					if (mc_que.contains(cmaze_cell[nextpos])) {
 						int new_tc = cmaze_cell[nextpos].get_heuristic()
-								+ temp.get_level() + 1;
+								+ temp.get_level() + 1 + temp.turn_cost(cmaze_cell[nextpos]);
 
 						if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
+							
+							total_node++;
 							mc_que.remove(cmaze_cell[nextpos]);
 							cmaze_cell[nextpos].set_parent(temp.get_index());
-							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-							cmaze_cell[nextpos]
-									.set_totalCost(temp.get_level() + 1);
 							cmaze_cell[nextpos].set_dir('W');
+							cmaze_cell[nextpos].set_level(temp.get_level() + temp.turn_cost(cmaze_cell[nextpos]) +  1);
+							cmaze_cell[nextpos]
+									.set_totalCost(cmaze_cell[nextpos].get_level() +  cmaze_cell[nextpos].get_heuristic());
 							mc_que.add(cmaze_cell[nextpos]);
 						}
 					} else { // if not exist, store information required
-						// n_node++;
+						total_node++;
 						cmaze_cell[nextpos].set_parent(temp.get_index());
-						cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-						cmaze_cell[nextpos].set_totalCost(temp.get_level() + 1);
-						mc_que.add(cmaze_cell[nextpos]);
+						
 						cmaze_cell[nextpos].set_dir('W');
+						cmaze_cell[nextpos].set_level(temp.get_level() + 1 + temp.turn_cost(cmaze_cell[nextpos]));
+						mc_que.add(cmaze_cell[nextpos]);
+						
+						cmaze_cell[nextpos].set_totalCost( cmaze_cell[nextpos].get_level() + cmaze_cell[nextpos].get_heuristic());
 					}
 				}
 			}
@@ -936,20 +947,26 @@ public class Maze_pathFinding {
 								+ temp.get_level() + 1;
 
 						if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
+							total_node++;
 							mc_que.remove(cmaze_cell[nextpos]);
 							cmaze_cell[nextpos].set_parent(temp.get_index());
-							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-							cmaze_cell[nextpos]
-									.set_totalCost(temp.get_level() + 1);
+							
 							cmaze_cell[nextpos].set_dir('E');
+							cmaze_cell[nextpos].set_level(temp.get_level() + temp.turn_cost(cmaze_cell[nextpos]) +  1);
+							
+							cmaze_cell[nextpos]
+									.set_totalCost(cmaze_cell[nextpos].get_level() +  cmaze_cell[nextpos].get_heuristic());
 							mc_que.add(cmaze_cell[nextpos]);
 						}
 					} else {
-						// n_node++;
+						total_node++;
 						cmaze_cell[nextpos].set_parent(temp.get_index());
-						cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-						cmaze_cell[nextpos].set_totalCost(temp.get_level() + 1);
+						
 						cmaze_cell[nextpos].set_dir('E');
+						cmaze_cell[nextpos].set_level(temp.get_level() + temp.turn_cost(cmaze_cell[nextpos]) +  1);
+						
+						cmaze_cell[nextpos]
+								.set_totalCost(cmaze_cell[nextpos].get_level() +  cmaze_cell[nextpos].get_heuristic());
 						mc_que.add(cmaze_cell[nextpos]);
 					}
 				}
@@ -966,20 +983,26 @@ public class Maze_pathFinding {
 								+ temp.get_level() + 1;
 
 						if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
+							total_node++;
 							mc_que.remove(cmaze_cell[nextpos]);
 							cmaze_cell[nextpos].set_parent(temp.get_index());
-							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-							cmaze_cell[nextpos]
-									.set_totalCost(temp.get_level() + 1);
+							
 							cmaze_cell[nextpos].set_dir('S');
+							cmaze_cell[nextpos].set_level(temp.get_level() + temp.turn_cost(cmaze_cell[nextpos]) +  1);
+							
+							cmaze_cell[nextpos]
+									.set_totalCost(cmaze_cell[nextpos].get_level() +  cmaze_cell[nextpos].get_heuristic());
 							mc_que.add(cmaze_cell[nextpos]);
 						}
 					} else {
-						// n_node++;
+						total_node++;
 						cmaze_cell[nextpos].set_parent(temp.get_index());
-						cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-						cmaze_cell[nextpos].set_totalCost(temp.get_level() + 1);
+						
 						cmaze_cell[nextpos].set_dir('S');
+						cmaze_cell[nextpos].set_level(temp.get_level() + temp.turn_cost(cmaze_cell[nextpos]) +  1);
+						
+						cmaze_cell[nextpos]
+								.set_totalCost(cmaze_cell[nextpos].get_level() +  cmaze_cell[nextpos].get_heuristic());
 						mc_que.add(cmaze_cell[nextpos]);
 					}
 				}
@@ -994,20 +1017,26 @@ public class Maze_pathFinding {
 						int new_tc = cmaze_cell[nextpos].get_heuristic()
 								+ temp.get_level() + 1;
 						if (new_tc < cmaze_cell[nextpos].get_totalCost()) {
+							total_node++;
 							mc_que.remove(cmaze_cell[nextpos]);
 							cmaze_cell[nextpos].set_parent(temp.get_index());
-							cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-							cmaze_cell[nextpos]
-									.set_totalCost(temp.get_level() + 1);
+							
 							cmaze_cell[nextpos].set_dir('N');
+							cmaze_cell[nextpos].set_level(temp.get_level() + temp.turn_cost(cmaze_cell[nextpos]) +  1);
+							
+							cmaze_cell[nextpos]
+									.set_totalCost(cmaze_cell[nextpos].get_level() +  cmaze_cell[nextpos].get_heuristic());
 							mc_que.add(cmaze_cell[nextpos]);
 						}
 					} else {
-						// n_node++;
+						total_node++;
 						cmaze_cell[nextpos].set_parent(temp.get_index());
-						cmaze_cell[nextpos].set_level(temp.get_level() + 1);
-						cmaze_cell[nextpos].set_totalCost(temp.get_level() + 1);
+						
 						cmaze_cell[nextpos].set_dir('N');
+						cmaze_cell[nextpos].set_level(temp.get_level() + temp.turn_cost(cmaze_cell[nextpos]) +  1);
+						
+						cmaze_cell[nextpos]
+								.set_totalCost(cmaze_cell[nextpos].get_level() +  cmaze_cell[nextpos].get_heuristic());
 						mc_que.add(cmaze_cell[nextpos]);
 					}
 				}
@@ -1018,8 +1047,9 @@ public class Maze_pathFinding {
 		temp = cmaze_cell[goal_state];
 		int curr = temp.get_index();
 		while (curr != start_state) {
-			if(temp.turn_cost(cmaze_cell[temp.get_parent()]) != 0 )
-				pathcost = ( pathcost + temp.turn_cost(cmaze_cell[temp.get_parent()]) + 1);
+			if (temp.turn_cost(cmaze_cell[temp.get_parent()]) != 0)
+				pathcost = (pathcost
+						+ temp.turn_cost(cmaze_cell[temp.get_parent()]) + 1);
 			else
 				pathcost++;
 			cmaze.fill_in_maze(curr % cmaze.get_width(),
@@ -1029,11 +1059,11 @@ public class Maze_pathFinding {
 			temp = cmaze_cell[curr];
 		}
 
-		System.out.println("Path cost is: " + pathcost);
-
+		System.out.println("Path cost is: " + cmaze_cell[goal_state].get_level());
+		System.out.println("toal node expanding is : " + total_node);
 		return 0;
 	}
-	
+
 	/*
 	 * input: cmaze - current maze return 0 when success, -1 if fail solve a
 	 * maze with A* search, turn cost 1, forward cost 2
@@ -1216,10 +1246,11 @@ public class Maze_pathFinding {
 		temp = cmaze_cell[goal_state];
 		int curr = temp.get_index();
 		while (curr != start_state) {
-			if(temp.forward_cost(cmaze_cell[temp.get_parent()]) != 0 )
-				pathcost = ( pathcost + temp.forward_cost(cmaze_cell[temp.get_parent()]) + 2);
+			if (temp.forward_cost(cmaze_cell[temp.get_parent()]) != 0)
+				pathcost = (pathcost
+						+ temp.forward_cost(cmaze_cell[temp.get_parent()]) + 2);
 			else
-				pathcost+=2;
+				pathcost += 2;
 			cmaze.fill_in_maze(curr % cmaze.get_width(),
 					curr / cmaze.get_width(), '.');
 

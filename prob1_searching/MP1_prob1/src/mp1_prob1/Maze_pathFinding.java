@@ -540,24 +540,28 @@ public class Maze_pathFinding {
 			// after we got to goal position
 			if (cmaze.maze_index(current % cmaze.get_width(),
 					current / cmaze.get_width()) == '.') {
+				//this is not on the while loop because we have to know the 
+				//prev dir to calc the total cost of the movement
+				//we only calc and save a dir here.
+				cmaze.find_dir(parent[current],current);
 				last_dir = cmaze.get_dir();
 				current = parent[current];
-				pathcost += fm_cost;
 				while (cmaze.maze_index(current % cmaze.get_width(), current
 						/ cmaze.get_width()) != 'P') {
-					cmaze.find_dir(parent[current], current);
-					if (last_dir != cmaze.get_dir())
-						pathcost = pathcost + fm_cost + turn_cost;
-					else
-						pathcost += fm_cost;
+					//find dir from the node's parent to the node
+					//use it to check if the pacman made a turn
+					//actually we are calculating the cost from current to next here
+					cmaze.find_dir(parent[current],current);
+					pathcost += cmaze.calc_total_cost(cmaze.get_dir(),last_dir,turn_cost,fm_cost);
 					last_dir = cmaze.get_dir();
+					//draw the dot on the path
 					cmaze.fill_in_maze(current % cmaze.get_width(), current
 							/ cmaze.get_width(), '.');
 					current = parent[current];
 				}
-				if (last_dir != 'E')
-					pathcost += turn_cost;
-				System.out.println();
+				//at the beginning the pacman faces east so the dir is always E
+				cmaze.set_dir('E');
+				pathcost += cmaze.calc_total_cost(cmaze.get_dir(),last_dir,turn_cost,fm_cost);
 				System.out.println("pathcost:" + pathcost);
 				System.out.println("number of nodes:" + n_node);
 				return 0;
@@ -641,7 +645,7 @@ public class Maze_pathFinding {
 		int nextpos;
 		int n_node = 1;
 		int pathcost = 0;
-		char lastdir;
+		char last_dir;
 		// System.out.print(start);
 		st.push(start);
 		while (!st.isEmpty()) {
@@ -651,36 +655,30 @@ public class Maze_pathFinding {
 			// route
 			if (cmaze.maze_index(current % cmaze.get_width(),
 					current / cmaze.get_width()) == '.') {
-				cmaze.find_dir(parent[current], current);
-				lastdir = cmaze.get_dir();
+				//this is not on the while loop because we have to know the 
+				//prev dir to calc the total cost of the movement
+				//we only calc and save a dir here.
+				cmaze.find_dir(parent[current],current);
+				last_dir = cmaze.get_dir();
 				current = parent[current];
-				pathcost += fm_cost;
 				while (cmaze.maze_index(current % cmaze.get_width(), current
 						/ cmaze.get_width()) != 'P') {
-					cmaze.find_dir(parent[current], current);
-					if (lastdir != cmaze.get_dir())
-						pathcost = pathcost + fm_cost + turn_cost;
-					else
-						pathcost += fm_cost;
-					lastdir = cmaze.get_dir();
+					//find dir from the node's parent to the node
+					//use it to check if the pacman made a turn
+					//actually we are calculating the cost from current to next here
+					cmaze.find_dir(parent[current],current);
+					pathcost += cmaze.calc_total_cost(cmaze.get_dir(),last_dir,turn_cost,fm_cost);
+					last_dir = cmaze.get_dir();
+					//draw the dot on the path
 					cmaze.fill_in_maze(current % cmaze.get_width(), current
 							/ cmaze.get_width(), '.');
 					current = parent[current];
 				}
-				// because the pacman head to right at the begin,
-				// check if it has to turn before start moving(turn back is also
-				// covered because
-				// pacman has to turn one time first.
-				if (lastdir != 'E') {
-					pathcost += turn_cost;
-				}
-				System.out.println();
-				System.out.print("pathcost:");
-				System.out.print(pathcost);
-				System.out.println();
-				System.out.print("number of nodes:");
-				System.out.print(n_node);
-				System.out.println();
+				//at the beginning the pacman faces east so the dir is always E
+				cmaze.set_dir('E');
+				pathcost += cmaze.calc_total_cost(cmaze.get_dir(),last_dir,turn_cost,fm_cost);
+				System.out.println("pathcost:" + pathcost);
+				System.out.println("number of nodes:" + n_node);
 				return 0;
 			}
 			// traverse the maze
@@ -759,32 +757,30 @@ public class Maze_pathFinding {
 			// path
 			if (cmaze.maze_index(current % cmaze.get_width(),
 					current / cmaze.get_width()) == '.') {
-				cmaze.find_dir(parent[current], current);
+				//this is not on the while loop because we have to know the 
+				//prev dir to calc the total cost of the movement
+				//we only calc and save a dir here.
+				cmaze.find_dir(parent[current],current);
 				last_dir = cmaze.get_dir();
 				current = parent[current];
-				pathcost += fm_cost;
 				while (cmaze.maze_index(current % cmaze.get_width(), current
 						/ cmaze.get_width()) != 'P') {
-					cmaze.find_dir(parent[current], current);
-					if (last_dir != cmaze.get_dir())
-						pathcost = pathcost + fm_cost + turn_cost;
-					else
-						pathcost += fm_cost;
+					//find dir from the node's parent to the node
+					//use it to check if the pacman made a turn
+					//actually we are calculating the cost from current to next here
+					cmaze.find_dir(parent[current],current);
+					pathcost += cmaze.calc_total_cost(cmaze.get_dir(),last_dir,turn_cost,fm_cost);
 					last_dir = cmaze.get_dir();
+					//draw the dot on the path
 					cmaze.fill_in_maze(current % cmaze.get_width(), current
 							/ cmaze.get_width(), '.');
 					current = parent[current];
 				}
-				if (last_dir != 'E') {
-					pathcost += turn_cost;
-				}
-				System.out.println();
-				System.out.print("pathcost:");
-				System.out.print(pathcost);
-				System.out.println();
-				System.out.print("number of nodes:");
-				System.out.print(n_node);
-				System.out.println();
+				//at the beginning the pacman faces east so the dir is always E
+				cmaze.set_dir('E');
+				pathcost += cmaze.calc_total_cost(cmaze.get_dir(),last_dir,turn_cost,fm_cost);
+				System.out.println("pathcost:" + pathcost);
+				System.out.println("number of nodes:" + n_node);
 				return 0;
 			}
 			// traverse the maze

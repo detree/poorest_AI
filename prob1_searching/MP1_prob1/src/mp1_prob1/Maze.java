@@ -31,7 +31,7 @@ public class Maze {
 
 		/* open maze.txt */
 		try {
-			br = new BufferedReader(new FileReader("smallTurn.txt"));
+			br = new BufferedReader(new FileReader("mediumMaze.txt"));
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -569,5 +569,41 @@ public class Maze {
 
 	}
 
+	/*input prev_dir - previous direction
+	 *	    cur_dir - current direction
+	 *		turn_cost - cost for making a turn
+	 *		fm_cost - cost for go forward for one step
+	 *output  the total cost for going from one block to another
+	 */
+	public int calc_total_cost(char prev_dir,char cur_dir,int turn_cost,int fm_cost)
+	{
+		if((prev_dir != 'W' && prev_dir != 'E' && prev_dir != 'N' && prev_dir != 'S') ||
+				(cur_dir != 'W' && cur_dir != 'E' && cur_dir != 'N' && cur_dir != 'S'))
+		{
+			System.out.println("input is not direction");
+			System.out.println("prev " + prev_dir + "cur " + cur_dir);
+		}
+		char north = 'N';
+		char east = 'E';
+		char west = 'W';
+		char south = 'S';
+		//if the pacman go to a block on it's back, the pacman has to turn two times
+		//and then move forward, so the total cost is 2 * turn_cost + fm_cost
+		if(cur_dir == north && prev_dir == south)
+			return 2 * turn_cost + fm_cost;
+		else if(cur_dir == south && prev_dir == north)
+			return 2 * turn_cost + fm_cost;
+		else if(cur_dir == west && prev_dir == east)
+			return 2 * turn_cost + fm_cost;
+		else if(cur_dir == east && prev_dir == west)
+			return 2 * turn_cost + fm_cost;
+		//the pacman has to turn once then go forward one step to get to the next block
+		else if(cur_dir != prev_dir)
+			return turn_cost + fm_cost;
+		//the pacman only has to go forward one step to get to the next block
+		else
+			return fm_cost;
+		
+	}
 	
 }

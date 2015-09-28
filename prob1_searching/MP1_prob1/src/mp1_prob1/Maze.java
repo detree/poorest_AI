@@ -31,7 +31,7 @@ public class Maze {
 
 		/* open maze.txt */
 		try {
-			br = new BufferedReader(new FileReader("bigTurn.txt"));
+			br = new BufferedReader(new FileReader("smallTurn.txt"));
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

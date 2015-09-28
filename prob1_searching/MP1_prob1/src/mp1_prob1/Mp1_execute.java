@@ -6,7 +6,7 @@ public class Mp1_execute {
 		// TODO Auto-generated method stub
 		Maze new_maze = new Maze();
 		Maze_pathFinding solvemaze = new Maze_pathFinding();
-		solvemaze.penalize_SolveMazeAStar_turn(new_maze);
+		solvemaze.penalize_SolveMazeAStar_forward(new_maze);
 		//Multidots_maze solvemaze =  new Multidots_maze(); 
 		//solvemaze.multidots_SolveMazeAStar(new_maze);
 		//solvemaze.SolveMazeBFS(new_maze,new_maze.get_start_state());

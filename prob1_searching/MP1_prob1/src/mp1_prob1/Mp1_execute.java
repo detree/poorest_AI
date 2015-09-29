@@ -11,7 +11,7 @@ public class Mp1_execute {
 		solvemaze.multidots_SolveMazeAStar(new_maze);
 		//solvemaze.SolveMazeBFS(new_maze,new_maze.get_start_state());
 		//solvemaze.Ghost_Approx_SolveMazeAStar(new_maze);
-		solvemaze.Ghost_SolveMazeAStar(new_maze);
+		//solvemaze.Ghost_SolveMazeAStar(new_maze);
 		//solvemaze.SolveMazeAStar(new_maze);
 		for (int j = 0; j < new_maze.get_height(); j++) {
 			for (int i = 0; i < new_maze.get_width(); i++) {

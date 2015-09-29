@@ -40,7 +40,7 @@ public class multidot_goal_cell implements Comparator<multidot_goal_cell>{
 		public int set_n_wall(Maze cmaze)
 		{
 			//System.out.println(this.pos);
-		
+			n_wall = 0;
 			if(this.pos + 1 < cmaze.get_width() * cmaze.get_height())
 			 if(cmaze.maze_index( (this.pos+1) % cmaze.get_width(), (this.pos+1) / cmaze.get_width() ) == '%' )
 				n_wall++;
@@ -53,7 +53,7 @@ public class multidot_goal_cell implements Comparator<multidot_goal_cell>{
 			 if(cmaze.maze_index( (this.pos+cmaze.get_width()) % cmaze.get_width(), (this.pos+cmaze.get_width()) / cmaze.get_width() ) == '%' )
 				n_wall++;
 			
-			if(this.pos - cmaze.get_width() > cmaze.get_width() * cmaze.get_height())
+			if(this.pos - cmaze.get_width() > 0)
 			 if(cmaze.maze_index( (this.pos-cmaze.get_width()) % cmaze.get_width(), (this.pos-cmaze.get_width()) / cmaze.get_width() ) == '%' )
 				n_wall++;
 			

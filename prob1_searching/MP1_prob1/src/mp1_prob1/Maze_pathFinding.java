@@ -41,13 +41,8 @@ public class Maze_pathFinding {
 							/ cmaze.get_width(), '.');
 					current = parent[current];
 				}
-				System.out.println();
-				System.out.print("pathcost:");
-				System.out.print(pathcost);
-				System.out.println();
-				System.out.print("number of nodes:");
-				System.out.print(n_node);
-				System.out.println();
+				System.out.println("          "+ "pathcost:" + pathcost);
+				System.out.println("          "+"number of nodes:" + n_node);
 				return 0;
 			}
 			// traverse the maze
@@ -134,12 +129,8 @@ public class Maze_pathFinding {
 					current = parent[current];
 				}
 				System.out.println();
-				System.out.print("pathcost:");
-				System.out.print(pathcost);
-				System.out.println();
-				System.out.print("number of nodes:");
-				System.out.print(n_node);
-				System.out.println();
+				System.out.println("            " +"pathcost:" + pathcost);
+				System.out.print("            " +"number of nodes:" + n_node);
 				return 0;
 			}
 			// traverse the maze
@@ -1282,7 +1273,6 @@ public class Maze_pathFinding {
 			curr = temp.get_parent();
 			temp = cmaze_cell[curr];
 		}
-
 		System.out.println("Path cost is: " + cmaze_cell[goal_state].get_level());
 		System.out.println("toal node expanding is : " + total_node);
 		return 0;

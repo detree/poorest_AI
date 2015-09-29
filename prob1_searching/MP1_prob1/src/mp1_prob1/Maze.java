@@ -31,7 +31,7 @@ public class Maze {
 
 		/* open maze.txt */
 		try {
-			br = new BufferedReader(new FileReader("mediumMaze.txt"));
+			br = new BufferedReader(new FileReader("bigMaze.txt"));
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -172,23 +172,23 @@ public class Maze {
 			this.dir = 'N';
 	}
 
-	public void set_n_walls_between_blocks() {
-		n_walls_between_blocks = new int[this.get_width() * this.get_height()][this
-				.get_width() * this.get_height()];
-		for (int i = 0; i < this.get_width() * this.get_height(); i++)
-			for (int j = i; j < this.get_width() * this.get_height(); j++) {
-				int count = 0;
-				int field_height = j / this.get_width() - i / this.get_width();
-				int field_width = j % this.get_width() - i % this.get_width();
-				for (int z = 0; z < field_height; z++)
-					for (int k = 0; k < field_width; k++) {
-						if (this.maze_index(i % maze_width + k, i / maze_width
-								+ z) == '%')
-							count++;
-					}
-				n_walls_between_blocks[i][j] = count;
-			}
-	}
+//	public void set_n_walls_between_blocks() {
+//		n_walls_between_blocks = new int[this.get_width() * this.get_height()][this
+//				.get_width() * this.get_height()];
+//		for (int i = 0; i < this.get_width() * this.get_height(); i++)
+//			for (int j = i; j < this.get_width() * this.get_height(); j++) {
+//				int count = 0;
+//				int field_height = j / this.get_width() - i / this.get_width();
+//				int field_width = j % this.get_width() - i % this.get_width();
+//				for (int z = 0; z < field_height; z++)
+//					for (int k = 0; k < field_width; k++) {
+//						if (this.maze_index(i % maze_width + k, i / maze_width
+//								+ z) == '%')
+//							count++;
+//					}
+//				n_walls_between_blocks[i][j] = count;
+//			}
+//	}
 
 	/*
 	 * input: cur_pos - current position next - the position of the pacman after
@@ -606,4 +606,124 @@ public class Maze {
 		
 	}
 	
+	public boolean may_have_wall_between(int index1,int index2)
+	{
+		if(index1 - index2 == 2 * this.get_width())
+			return true;
+		if(index2 - index1 == 2 * this.get_width())
+			return true;
+		if(index2 - index1 == 2)
+			return true;
+		if(index1 - index2 == 2)
+			return true;
+		else 
+			return false;
+	}
+	public boolean on_the_same_row(int index1,int index2)
+	{
+		if(index1 > this.get_width() * this.get_height() || index2 > this.get_width() * this.get_height()
+				|| index1 < 0 || index2 < 0){
+			System.out.println("not valid index on on the same row");
+			return false;
+		}
+		if(index1 / this.get_width() == index2 / this.get_width())
+			return true;
+		else
+			return false;
+	}
+	public int square_nearby(int index)
+	{
+		int NW = index - this.get_width() - 2;
+		int NE = index - this.get_width() + 2;
+		int SW = index + this.get_width() - 2;
+		int SE = index + this.get_width() + 2;
+		if(this.on_the_same_row(index,index - 2))
+		{
+			if(this.maze_index((index -1) % this.get_width(),(index - 1) / this.get_width()) =='.'
+					&& this.maze_index((index -2) % this.get_width(),(index - 2) / this.get_width()) =='.')
+			{
+				if(NW  > 0)
+				{
+					if(this.maze_index((NW) % this.get_width(),(NW) / this.get_width()) =='.'
+							&& this.maze_index((NW + 1) % this.get_width(),(NW + 1) / this.get_width()) =='.')
+							return 1;
+				}
+				if(SW < this.get_width() * this.get_height())
+				{
+					if(this.maze_index((SW) % this.get_width(),(SW) / this.get_width()) =='.'
+							&& this.maze_index((SW + 1) % this.get_width(),(SW + 1) / this.get_width()) =='.')
+							return 2;
+				}
+			}
+		}
+		if(this.on_the_same_row(index,index + 2))
+		{
+			if(this.maze_index((index +1) % this.get_width(),(index + 1) / this.get_width()) =='.'
+					&& this.maze_index((index +2) % this.get_width(),(index + 2) / this.get_width()) =='.')
+			{
+				if(NE > 0)
+				{
+					if(this.maze_index((NE) % this.get_width(),(NE) / this.get_width()) =='.'
+							&& this.maze_index((NE - 1) % this.get_width(),(NE - 1) / this.get_width()) =='.')
+							return 3;
+				}
+				if(SE < this.get_width() * this.get_height())
+				{
+					if(this.maze_index((SE) % this.get_width(),(SE) / this.get_width()) =='.'
+							&& this.maze_index((SE - 1) % this.get_width(),(SE - 1) / this.get_width()) =='.')
+							return 4;
+				}
+			}
+		}	
+		return 0;
+	}
+	
+	public int find_rotate_pos(int retval,int rotate_count,int center)
+	{
+		if(retval == 1){
+			if(rotate_count == 0)
+				return center - 1;
+			if(rotate_count == 1)
+				return center - 2;
+			if(rotate_count == 2)
+				return center - this.get_width() - 2;
+			if(rotate_count == 3)
+				return center - 1 - this.get_width();
+		}
+		
+		if(retval == 2){
+			if(rotate_count == 0)
+				return center - 1;
+			if(rotate_count == 1)
+				return center - 2;
+			if(rotate_count == 2)
+				return center + this.get_width() - 2;
+			if(rotate_count == 3)
+				return center - 1 + this.get_width();
+		}
+		
+		if(retval == 3){
+			if(rotate_count == 0)
+				return center + 1;
+			if(rotate_count == 1)
+				return center + 2;
+			if(rotate_count == 2)
+				return center - this.get_width() + 2;
+			if(rotate_count == 3)
+				return center + 1 - this.get_width();
+			}
+		
+		if(retval == 4){
+			if(rotate_count == 0)
+				return center + 1;
+			if(rotate_count == 1)
+				return center + 2;
+			if(rotate_count == 2)
+				return center + this.get_width() + 2;
+			if(rotate_count == 3)
+				return center + 1 + this.get_width();
+			}
+	System.out.println("rotate wrong " + "wrong count" + rotate_count + "wrong ret" + retval);
+	return -1;
+	}
 }

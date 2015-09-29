@@ -39,7 +39,7 @@ public class Maze{
 
 		/* open maze.txt */
 		try {
-			br = new BufferedReader(new FileReader("small_noGhost.txt"));
+			br = new BufferedReader(new FileReader("smallGhost.txt"));
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

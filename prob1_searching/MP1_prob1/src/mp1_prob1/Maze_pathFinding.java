@@ -483,7 +483,7 @@ System.out.println("end TESTING===================");
 				}
 			}
 		
-		while( curr != null )
+		while( curr.get_parent() != null )
 		{
 			System.out.println("point at:"+curr.get_index()%width+","+curr.get_index()/width);
 			pathcost++;
@@ -604,8 +604,8 @@ System.out.println("end TESTING===================");
 			for(int dir_num=0; dir_num<4; dir_num++)
 				if(gnextpos == gcurrpos+dir_vector[dir_num])
 					gnextdir = dir_num;
-			cmaze.fill_in_maze(gcurrpos%width, gcurrpos/width, ' ');
-			cmaze.fill_in_maze(gnextpos%width, gnextpos/width, 'g');
+			//cmaze.fill_in_maze(gcurrpos%width, gcurrpos/width, ' ');
+			//cmaze.fill_in_maze(gnextpos%width, gnextpos/width, 'g');
 			
 System.out.println("ghost at("+gcurrpos%width+","+gcurrpos/width+"), next at("
 		+gnextpos%width+","+gnextpos/width+")");
@@ -668,7 +668,7 @@ System.out.println("ghost at("+gcurrpos%width+","+gcurrpos/width+"), next at("
 			}
 System.out.println("pathcost:"+curr.get_level());
 System.out.println("node expanded:"+node_expanded);
-		while( curr != null )
+		while( curr.get_parent() != null )
 		{
 //System.out.println("point at:"+curr.get_index()%width+","+curr.get_index()/width);
 			pathcost++;

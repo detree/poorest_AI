@@ -39,8 +39,7 @@ public class Maze{
 
 		/* open maze.txt */
 		try {
-			br = new BufferedReader(new FileReader("small_noGhost.txt"));
-
+			br = new BufferedReader(new FileReader("bigDots.txt"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -52,7 +51,7 @@ public class Maze{
 			while ((line = br.readLine()) != null) {
 				maze_width = line.length();
 				maze_height++;
-				System.out.println(line);
+				//System.out.println(line);
 				if (temp_maze == null)
 					temp_maze = line;
 				else
@@ -187,6 +186,10 @@ public class Maze{
 		return this.dir;
 	} 
 	
+	/*input: cur - current position
+	 *		next - the position of the pacman after the pacman move on more step
+	 *return the direction the pacman should take if he wants to go from cur to next
+	 */		 
 	public void find_dir(int cur,int next)
 	{
 		if(next - cur == 1)

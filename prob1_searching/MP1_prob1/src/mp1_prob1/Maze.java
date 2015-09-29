@@ -366,18 +366,4 @@ public class Maze{
 			if(mid[i][1] != LARGE_INT) heuristic_wall_count[i]+=(mid[i][1]);
 		}
 	}
-	public int find_goals(int cur_pos) {
-		if (cur_pos >= (this.get_width() * this.get_height()))
-			return -1;
-		// System.out.println("maze: " + this.get_height() * this.get_width());
-		cur_pos++;
-		while (maze_read[cur_pos] != '.') {
-			cur_pos++;
-			// System.out.println(cur_pos);
-			if (cur_pos >= (this.get_width() * this.get_height()))
-				return -1;
-		}
-		return cur_pos;
-	}
-
 }

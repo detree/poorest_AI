@@ -10,13 +10,14 @@ public class Maze_cell implements Comparator<Maze_cell>{
 	private int heuristic; //heuristic value
 	private int total_cost; // total cost from this maze_cell to the goal state
 	private int level; // the current level of this maze_cell, path_cost
-	private char dir; // dir when arriving this maze_cell
+	private char dir;// dir when arriving this maze_cell
 	
 	/* default constructor */
 	public Maze_cell(){
 		index = -1;
 		heuristic = -1;
-		parent = -1;
+		total_cost = 0;
+		level = 0;
 	}
 	
 	/* input: i - index 
@@ -25,7 +26,12 @@ public class Maze_cell implements Comparator<Maze_cell>{
 	public Maze_cell(int i, int h){
 		index = i;
 		heuristic = h;
-		parent = -1;
+		total_cost = 0;
+		level = 0;
+	}
+	
+	public Maze_cell(int i){
+		index = i;
 	}
 	
 	public int get_parent(){
@@ -44,9 +50,7 @@ public class Maze_cell implements Comparator<Maze_cell>{
 		return this.index;
 	}
 	
-	public void set_index(int i){
-		this.index=i;
-	}
+	
 	
 	public int get_level(){
 		return this.level;
@@ -70,6 +74,10 @@ public class Maze_cell implements Comparator<Maze_cell>{
 
 	public void set_dir(char dir){
 		this.dir =  dir;
+	}
+	
+	public void set_heuristic(int h){
+		this.heuristic =  h;
 	}
 	
 	/* check whether making a turn between previos cell and curr cell 
@@ -131,5 +139,10 @@ public class Maze_cell implements Comparator<Maze_cell>{
 			return -1;
 		else 
 			return 0;
+	}
+
+	public void set_index(int i) {
+		this.index = i;
+		
 	}
 }

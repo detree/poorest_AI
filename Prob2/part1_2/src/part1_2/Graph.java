@@ -4,6 +4,7 @@ package part1_2;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.IntPredicate;
 
 public class Graph {
 	private int node_n;
@@ -175,7 +176,8 @@ for(i=0;i<adj_list.size();i++){
 }
 		return true;
 	}
-
+	
+	//=============================search functions===================================
 	private boolean [][]plate;//plate[node_n][4], the second dimension is for 4 different colors.
 	
 	private boolean sol_backtracing(boolean [][]color, int curr_node, boolean visited[], int visited_num)
@@ -240,10 +242,11 @@ for(i=0;i<adj_list.size();i++){
 		boolean []visited = new boolean[node_n];
 		if( sol_backtracing(color, random_generator.nextInt(node_n), visited, 0) )
 		{
-for(int j=0;j<node_n;j++)
-	for(int k=0;k<4;k++)
-		if(plate[j][k])
-			System.out.println("for node"+j+" color is"+k);
+			//print out the solution
+			for(int j=0;j<node_n;j++)
+				for(int k=0;k<4;k++)
+					if(plate[j][k])
+						System.out.println("for node"+j+" color is"+k);
 			return plate;
 		}
 		else
@@ -252,4 +255,127 @@ System.out.println("hmm, serious error in backtracing.");
 			return plate;
 		}
 	}
+
+	private boolean foward_check(int node_num, short color_next, boolean[][] color,
+			short[] plate_remain, int[] use_by_other)
+	{
+		for(int i=0; i<adj_list.get(node_num).size(); i++)
+		{
+			int next_node = adj_list.get(node_num).get(i);
+			if(color[next_node][color_next])
+			{
+				plate_remain[next_node]--;
+				if(plate_remain[next_node]<=0)
+					return false;
+			}
+			color[next_node][color_next] = false;
+			for(int j=0;j<4;j++)
+				if(color[next_node][j])
+					use_by_other[j]++;
+		}
+		return true;
+	}
+	private boolean sol_forward(int curr_node, boolean [][]color, boolean visited[], int visited_num,
+			short[] plate_remain, int[] use_by_other)
+	{
+//System.out.println("visiting:"+curr_node+" all:"+visited_num);
+		if(visited_num==node_n)
+		{
+			for(int j=0; j<node_n; j++)
+				for(int k=0;k<4;k++)
+					plate[j][k] = color[j][k];
+			return true;
+		}
+		boolean []color_hash = new boolean[4];
+		short color_tried=0, color_next=0;
+		for(short i=0;i<4;i++)
+		{
+			if(color[curr_node][i]==false)
+			{
+				color_hash[i]=true;
+				color_tried++;
+			}
+		}
+		while(color_tried<4)
+		{
+			for(short i=0;i<4;i++)
+				if(color_hash[i]==false)
+				{
+					color_next = i;
+					break;
+				}
+			for(short i=0;i<4;i++)
+				if(color_hash[i]==false && use_by_other[i]<use_by_other[color_next])
+					color_next = i;
+			//already found the next color to try.
+			color_tried++;
+			color_hash[color_next]=true;
+//System.out.println("trying color:"+color_next);
+			boolean [][]new_color = new boolean[node_n][4];
+			boolean []new_visited = new boolean[node_n];
+			short []new_plate_remain = new short[node_n];
+			int[] new_use_by_other = new int[4];
+			for(short i=0;i<4;i++) new_use_by_other[i]=0;
+			for(int j=0; j<node_n; j++)
+			{
+				new_visited[j] = visited[j];
+				new_plate_remain[j] = plate_remain[j];
+				for(int k=0;k<4;k++)
+					if(j!=curr_node) new_color[j][k] = color[j][k];
+			}
+			new_color[curr_node][color_next] = true;
+			new_visited[curr_node] = true;
+			new_plate_remain[curr_node] = 1;
+			if(foward_check(curr_node, color_next, new_color, new_plate_remain, new_use_by_other))
+			{
+				//choose the next node to explore, using plate_remain.
+				int next_node=-1;
+				for(int i=0;i<node_n;i++)
+				{
+					if(next_node==-1 && new_visited[i]==false)
+						next_node = i;
+					if(next_node!=-1 && new_plate_remain[i]>new_plate_remain[next_node])
+						next_node = i;
+				}
+				if(next_node<0 && visited_num+1<node_n)
+					System.out.println("hmm, serious error in forward_checking main.");
+				if(sol_forward(next_node, new_color, new_visited, visited_num+1, new_plate_remain, new_use_by_other))
+					return true;
+			}
+		}
+		return false;
+	}
+	public boolean[][] sol_forward_enter()
+	{
+		plate = new boolean[node_n][4];
+		boolean [][]color = new boolean[node_n][4];
+		boolean []visited = new boolean[node_n];
+		short[] plate_remain = new short[node_n];
+		int[] use_by_other = new int[4];
+		int temp_first_node = 0;
+		for(int i=0;i<node_n;i++)
+		{
+			if(adj_list.get(temp_first_node).size()<adj_list.get(i).size())
+				temp_first_node = i;
+			plate_remain[i]=4;
+			for(int j=0;j<4;j++)
+				color[i][j]=true;
+		}
+		for(short i=0;i<4;i++) use_by_other[i]=0;
+		if( sol_forward(temp_first_node, color, visited, 0, plate_remain, use_by_other) )
+		{
+			//print out the solution
+			for(int j=0;j<node_n;j++)
+				for(int k=0;k<4;k++)
+					if(plate[j][k])
+						System.out.println("for node"+j+" color is"+k);
+			return plate;
+		}
+		else
+		{
+System.out.println("hmm, serious error in sol_foward_enter.");
+			return plate;
+		}
+	}
+	
 }

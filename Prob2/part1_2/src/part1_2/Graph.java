@@ -46,7 +46,6 @@ public class Graph {
 	{
 		return Math.sqrt( (n1.posx-n2.posx)*(n1.posx-n2.posx) + (n1.posy-n2.posy)*(n1.posy-n2.posy) );
 	}
-
 	private boolean LineIntersect(Graph_node node1,Graph_node node2,Graph_node node3,Graph_node node4)
 	{
 		double x1=node1.posx, y1=node1.posy,
@@ -99,7 +98,6 @@ public class Graph {
 			return false;
 		return(true);
 	}
-	
 	private boolean have_intersect(int connect_from, int connect_to)
 	{
 		for(int j=0;j<node_n;j++)//go through every point has already assigned edges
@@ -111,14 +109,13 @@ public class Graph {
 				if(j!=k && adj_list.get(j).size()>0 &&
 						LineIntersect(nodes.get(connect_from), nodes.get(connect_to), nodes.get(j), nodes.get(adj_list.get(j).get(k))) )
 				{
-System.out.println(connect_from+","+connect_to+","+j+","+adj_list.get(j).get(k));
+//System.out.println(connect_from+","+connect_to+","+j+","+adj_list.get(j).get(k));
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-
 	public boolean draw_graph(){
 		if(node_n ==0) return false;
 		Graph_node temp = new Graph_node();
@@ -150,7 +147,7 @@ for( i=0;i<nodes.size();i++)
 				if(matrix[i][j]==false && !have_intersect(i, j))
 				{
 					Checking_pair temppair = new Checking_pair( j, distance(nodes.get(i), nodes.get(j) ) );
-System.out.println(i+" in compare:"+j+" dist:"+temppair.dist);
+//System.out.println(i+" in compare:"+j+" dist:"+temppair.dist);
 					queue.add( temppair );
 				}
 			}
@@ -177,5 +174,82 @@ for(i=0;i<adj_list.size();i++){
 	System.out.println();
 }
 		return true;
+	}
+
+	private boolean [][]plate;//plate[node_n][4], the second dimension is for 4 different colors.
+	
+	private boolean sol_backtracing(boolean [][]color, int curr_node, boolean visited[], int visited_num)
+	{
+//System.out.println("visiting:"+curr_node+" all:"+visited_num);
+		if(visited_num>=node_n) return true;
+		boolean []color_hash = new boolean[4];
+		short color_tried = 0, color_next;
+		while(color_tried<4)
+		{
+			color_next = (short) random_generator.nextInt(4);//the next color for trial.
+			if(color_hash[color_next]) continue;//this color has been tried before.
+			color_hash[color_next] = true;
+			color_tried++;
+			//now need to try if the constrain is met.
+			boolean flag_constrain=false;
+			for(int j=0; j<adj_list.get(curr_node).size(); j++)
+			{
+				int temp_checking = adj_list.get(curr_node).get(j);
+				if(visited[temp_checking] && color[temp_checking][color_next] == true)
+				{
+					flag_constrain = true;
+					break;
+				}
+			}
+			if(!flag_constrain)
+			{
+				if(visited_num == node_n-1)
+				{
+					for(int j=0; j<node_n; j++)
+						for(int k=0;k<4;k++)
+							plate[j][k] = color[j][k];
+					plate[curr_node][color_next] = true;
+					return true;
+				}
+				
+				//normally, we need to try next node.
+				boolean [][]new_color = new boolean[node_n][4];
+				boolean []new_visited = new boolean[node_n];
+				for(int j=0; j<node_n; j++)
+				{
+					new_visited[j] = visited[j];
+					for(int k=0;k<4;k++)
+						new_color[j][k] = color[j][k];
+				}
+				new_visited[curr_node] = true;
+				new_color[curr_node][color_next] = true;
+				int next_node = random_generator.nextInt(node_n);
+				while( new_visited[next_node] )
+					next_node = random_generator.nextInt(node_n);
+				if(sol_backtracing(new_color, next_node, new_visited, visited_num+1))
+					return true;
+			}
+		}
+		return false;
+	}
+	//naive search with randomized next node and randomized value assignment. seem that upper bound is 45
+	public boolean[][] sol_backtracing_enter()
+	{
+		plate = new boolean[node_n][4];
+		boolean [][]color = new boolean[node_n][4];
+		boolean []visited = new boolean[node_n];
+		if( sol_backtracing(color, random_generator.nextInt(node_n), visited, 0) )
+		{
+for(int j=0;j<node_n;j++)
+	for(int k=0;k<4;k++)
+		if(plate[j][k])
+			System.out.println("for node"+j+" color is"+k);
+			return plate;
+		}
+		else
+		{
+System.out.println("hmm, serious error in backtracing.");
+			return plate;
+		}
 	}
 }

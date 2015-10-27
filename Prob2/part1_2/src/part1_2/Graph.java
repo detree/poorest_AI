@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.function.IntPredicate;
 
 public class Graph {
-	private int node_n;
+	private int node_n, node_checked;
 	private double square_size;
 	private List<Graph_node> nodes;
 	private List< List<Integer> > adj_list;
@@ -22,6 +22,7 @@ public class Graph {
 		nodes = null;
 		adj_list = null;
 		random_generator = new Random();
+		node_checked = new Integer(0);
 	}
 	//init a graph with n points.
 	public Graph(int n, double size)
@@ -42,6 +43,7 @@ public class Graph {
 		for(int i=0;i<node_n;i++)
 			adj_list.add( new ArrayList<Integer>() );
 		random_generator = new Random();
+		node_checked = new Integer(0);
 	}
 	private double distance(Graph_node n1, Graph_node n2)
 	{
@@ -183,6 +185,7 @@ for(i=0;i<adj_list.size();i++){
 	private boolean sol_backtracing(boolean [][]color, int curr_node, boolean visited[], int visited_num)
 	{
 //System.out.println("visiting:"+curr_node+" all:"+visited_num);
+		node_checked++;
 		if(visited_num>=node_n) return true;
 		boolean []color_hash = new boolean[4];
 		short color_tried = 0, color_next;
@@ -237,6 +240,7 @@ for(i=0;i<adj_list.size();i++){
 	//naive search with randomized next node and randomized value assignment. seem that upper bound is 45
 	public boolean[][] sol_backtracing_enter()
 	{
+		node_checked=0;
 		plate = new boolean[node_n][4];
 		boolean [][]color = new boolean[node_n][4];
 		boolean []visited = new boolean[node_n];
@@ -278,6 +282,7 @@ System.out.println("hmm, serious error in backtracing.");
 	private boolean sol_forward(int curr_node, boolean [][]color, boolean visited[], int visited_num,
 			short[] plate_remain, int[] use_by_other)
 	{
+		node_checked++;
 //System.out.println("visiting:"+curr_node+" all:"+visited_num);
 		if(visited_num==node_n)
 		{
@@ -296,8 +301,10 @@ System.out.println("hmm, serious error in backtracing.");
 				color_tried++;
 			}
 		}
+//System.out.println("initial color_tried "+color_tried);
 		while(color_tried<4)
 		{
+//System.out.println("LOOP:"+color_tried);
 			for(short i=0;i<4;i++)
 				if(color_hash[i]==false)
 				{
@@ -309,8 +316,9 @@ System.out.println("hmm, serious error in backtracing.");
 					color_next = i;
 			//already found the next color to try.
 			color_tried++;
+//System.out.println("start: color_hash:"+color_hash[0]+','+color_hash[1]+','+color_hash[2]+','+color_hash[3]);
 			color_hash[color_next]=true;
-//System.out.println("trying color:"+color_next);
+//System.out.println("trying color:"+color_next+" have tried:"+color_tried);
 			boolean [][]new_color = new boolean[node_n][4];
 			boolean []new_visited = new boolean[node_n];
 			short []new_plate_remain = new short[node_n];
@@ -342,11 +350,14 @@ System.out.println("hmm, serious error in backtracing.");
 				if(sol_forward(next_node, new_color, new_visited, visited_num+1, new_plate_remain, new_use_by_other))
 					return true;
 			}
+//System.out.println("end: color_hash:"+color_hash[0]+','+color_hash[1]+','+color_hash[2]+','+color_hash[3]);
+			if(color_tried>=4) return false;
 		}
 		return false;
 	}
 	public boolean[][] sol_forward_enter()
 	{
+		node_checked=0;
 		plate = new boolean[node_n][4];
 		boolean [][]color = new boolean[node_n][4];
 		boolean []visited = new boolean[node_n];
@@ -376,6 +387,34 @@ System.out.println("hmm, serious error in backtracing.");
 System.out.println("hmm, serious error in sol_foward_enter.");
 			return plate;
 		}
+	}
+	
+	public boolean check_result(boolean [][]color)
+	{
+		for(int i=0;i<node_n;i++)
+		{
+			short curr_color=-1;
+			for(short k=0;k<4;k++)
+				if(curr_color==-1 && color[i][k]) 
+					curr_color = k;
+				else if(curr_color>=0 && color[i][k])
+					return false;
+			for(int j=0;j<adj_list.get(i).size();j++)
+			{
+				if(color[adj_list.get(i).get(j)][curr_color])
+					return false;
+			}
+		}
+		return true;
+	}
+	public int get_node_checked() {
+		return node_checked;
+	}
+	public int get_edge_number(){
+		int sum=0;
+		for(int i=0;i<adj_list.size(); i++)
+			sum+=adj_list.get(i).size();
+		return sum;
 	}
 	
 }

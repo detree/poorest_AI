@@ -73,10 +73,15 @@ public class Train {
 	}
 	
 	public void calculate_likely(LikelyMatrix matrix){
-		
+		if(matrix.dim!=dim || matrix.class_num!=class_num){
+			System.out.println("some error with init of Likely Matrix");
+			return;
+		}
+		double raw=0;
 		for(int i=0; i<dim; i++)
 			for(int j=0; j<dim; j++)
 				for(int k=0; k<class_num; k++){
+					raw = (count[i][j][k] + K)/(class_count[k]+class_num*K);
 					
 				}
 	}

@@ -8,15 +8,16 @@ public class Train {
 	private String img_file, label_file;
 	private double K;//smoothing parameter.
 	private int dim, class_num;//image size, and how many different classes.
-	private int [][][]count; //count[i][j][class] of Fij for each class
+	private int [][][]count1, count0; //count[i][j][class] of Fij for each class
 	private int []class_count;//the # of instances for each class.
 	public Train(){
 		label_file = img_file = null;
 		K=1;
 		dim = 0;
 		class_num = 0;
-		class_count = null;
-		count = null;
+		class_count1 = null;
+		count0 = null;
+		count1 = null;
 	}
 	public Train(String img, String label){
 		img_file = img;
@@ -32,7 +33,8 @@ public class Train {
 		K = kin;
 		dim = dimin;
 		class_num = classin;
-		count = new int[dim][dim][class_num];
+		count0 = new int[dim][dim][class_num];
+		count1 = new int[dim][dim][class_num];
 		class_count = new int [class_num];
 	}
 	public boolean scan_file()
@@ -96,7 +98,7 @@ public class Train {
 			sum+=class_count[i];
 		for(int i=0; i<class_num; i++)
 			likely[i] = (double)class_count[i]/sum;
-		System.out.println(likely[4]);
+		//System.out.println(likely[4]);
 	}
 	
 	public void print_count()

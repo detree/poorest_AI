@@ -32,7 +32,7 @@ public class Train {
 		dim = dimin;
 		class_num = classin;
 		count = new int[dim][dim][class_num];
-		class_count = new int [10];
+		class_count = new int [class_num];
 	}
 	public boolean scan_file()
 	{
@@ -44,21 +44,23 @@ public class Train {
             BufferedReader fileimg = new BufferedReader(init_fileimg);
             Scanner filelabel = new Scanner(new File(label_file));
             
-            int linei=0, number=0;
+            int linei=-1, number=0;
             
             while(  (line = fileimg.readLine()) != null) {
             	linei++;
-            	if(linei==29) linei=1;
-            	if(linei==1){
+            	if(linei==28) linei=0;
+            	if(linei==0){
             		number = filelabel.nextInt();
             		class_count[number]++;
             	}
-//            	System.out.println(number);
-//              System.out.println(line);
-            	
-            }   
-
-            // Always close files.
+            	// (# of times pixel (i,j) has value f in training examples from this class)
+            	for(int j=0; j<line.length(); j++){
+            		if(line.charAt(j)=='+' || line.charAt(j)=='#'){
+            			count[linei][j][number]++;
+            		}
+            	}
+            }
+            //close files.
             fileimg.close();
         }
         catch(FileNotFoundException ex) {
@@ -68,5 +70,26 @@ public class Train {
             System.out.println("Error reading file '"+ img_file + "' and '" + label_file + "'");
         }
 		return true;
+	}
+	
+	public void calculate_likely(LikelyMatrix matrix){
+		
+		for(int i=0; i<dim; i++)
+			for(int j=0; j<dim; j++)
+				for(int k=0; k<class_num; k++){
+					
+				}
+	}
+	
+	public void print_count()
+	{
+		for(int i=0;i<class_num;i++){
+			System.out.println("for class"+i);
+			for(int j=0;j<dim;j++){
+				for(int k=0;k<dim;k++)
+					System.out.print(count[j][k][i]+" ");
+				System.out.println();
+			}
+		}
 	}
 }

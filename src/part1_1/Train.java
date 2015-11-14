@@ -1,7 +1,8 @@
 package part1_1;
 
 import java.io.*;
-import java.util.Scanner; 
+import java.math.*;
+import java.util.*;
 
 public class Train {
 	private String img_file, label_file;
@@ -82,7 +83,7 @@ public class Train {
 			for(int j=0; j<dim; j++)
 				for(int k=0; k<class_num; k++){
 					raw = (count[i][j][k] + K)/(class_count[k]+class_num*K);
-					
+					matrix.value[i][j][k] = Math.log10(raw);
 				}
 	}
 	

@@ -7,8 +7,9 @@ public class LikelyMatrix {
 		dim = 0;
 		value = null;
 	}
-	public LikelyMatrix(int n, int class_num) {
+	public LikelyMatrix(int n, int class_n) {
 		dim = n;
+		class_num = class_n;
 		value = new double[n][n][class_num];
 	}
 }

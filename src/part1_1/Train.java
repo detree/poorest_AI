@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Train {
 	private String img_file, label_file;
-	private int K;//smoothing parameter.
+	private double K;//smoothing parameter.
 	private int dim, class_num;//image size, and how many different classes.
 	private int [][][]count; //count[i][j][class] of Fij for each class
 	private int []class_count;//the # of instances for each class.
@@ -27,7 +27,7 @@ public class Train {
 		img_file = img;
 		label_file = label;
 	}
-	public void set_para(int kin, int dimin, int classin)
+	public void set_para(double kin, int dimin, int classin)
 	{
 		K = kin;
 		dim = dimin;
@@ -83,8 +83,20 @@ public class Train {
 			for(int j=0; j<dim; j++)
 				for(int k=0; k<class_num; k++){
 					raw = (count[i][j][k] + K)/(class_count[k]+class_num*K);
-					matrix.value[i][j][k] = Math.log10(raw);
+					//matrix.value[i][j][k] = Math.log10(raw);
+					matrix.value[i][j][k] = raw;
+					//System.out.println(matrix.value[i][j][k]);
 				}
+	}
+	
+	public void get_class_likely(double [] likely)
+	{
+		double sum=0;
+		for(int i=0; i<class_num; i++)
+			sum+=class_count[i];
+		for(int i=0; i<class_num; i++)
+			likely[i] = (double)class_count[i]/sum;
+		System.out.println(likely[4]);
 	}
 	
 	public void print_count()

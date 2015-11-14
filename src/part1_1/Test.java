@@ -36,7 +36,11 @@ public class Test {
 	
 	public boolean scan_and_test(LikelyMatrix matrix, double[] class_psbl)
 	{
-		String []line = new String[class_num];
+		if(matrix.dim!=dim || matrix.class_num!=class_num){
+			System.out.println("some error with init of Likely Matrix");
+			return false;
+		}
+		String []line = new String[dim];
 		try {
             // FileReader reads text files in the default encoding.
             FileReader init_fileimg = new FileReader(img_file);
@@ -56,11 +60,23 @@ public class Test {
             	int maxi=-1; double max_psbl=-999999999, curr_psbl=0;
             	for(int i=0; i<class_num; i++){
             		curr_psbl = Math.log10(class_psbl[i]);
-            		for(int j=0; j<dim; j++)
+            		for(int j=0; j<dim; j++){
             			for(int k=0; k<dim; k++){
-            				
-            				curr_psbl+=Math.log10(matrix.value[j][k][i]);
+            				if(line[j].charAt(k)==' ')
+            					curr_psbl+=1.0*Math.log10(matrix.value[0][j][k][i]);
+            				else if(line[j].charAt(k)=='+' || line[j].charAt(k)=='#')
+            					curr_psbl+=1.0*Math.log10(matrix.value[1][j][k][i]);
             			}
+            		}
+            		if(curr_psbl>max_psbl){
+            			max_psbl = curr_psbl;
+            			maxi = i;
+            		}
+            	}
+            	if(maxi==number)
+            		correct_count[number]++;
+            	else{
+            		//System.out.println("wrong guess with:"+maxi+" real:"+number);
             	}
             }
             //close files.
@@ -73,5 +89,16 @@ public class Test {
             System.out.println("Error reading file '"+ img_file + "' and '" + label_file + "'");
         }
 		return true;
+	}
+	
+	public void statistic(){
+		int correct=0,all=0;
+		for(int i=0;i<class_num;i++)
+		{
+			correct+=correct_count[i];
+			all+=class_count[i];
+			System.out.println("for number"+i+" correct rate="+(double)correct_count[i]/class_count[i]);
+		}
+		System.out.println("overall correctness:"+(double)correct/all);
 	}
 }

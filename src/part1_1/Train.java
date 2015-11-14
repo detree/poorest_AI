@@ -15,7 +15,7 @@ public class Train {
 		K=1;
 		dim = 0;
 		class_num = 0;
-		class_count1 = null;
+		class_count = null;
 		count0 = null;
 		count1 = null;
 	}
@@ -59,7 +59,10 @@ public class Train {
             	// (# of times pixel (i,j) has value f in training examples from this class)
             	for(int j=0; j<line.length(); j++){
             		if(line.charAt(j)=='+' || line.charAt(j)=='#'){
-            			count[linei][j][number]++;
+            			count1[linei][j][number]++;
+            		}
+            		else{
+            			count0[linei][j][number]++;
             		}
             	}
             }
@@ -80,13 +83,15 @@ public class Train {
 			System.out.println("some error with init of Likely Matrix");
 			return;
 		}
-		double raw=0;
+		double raw0 = 0, raw1 = 0;;
 		for(int i=0; i<dim; i++)
 			for(int j=0; j<dim; j++)
 				for(int k=0; k<class_num; k++){
-					raw = (count[i][j][k] + K)/(class_count[k]+class_num*K);
+					raw0 = (count0[i][j][k] + K)/(class_count[k]+class_num*K);
+					raw1 = (count1[i][j][k] + K)/(class_count[k]+class_num*K);
 					//matrix.value[i][j][k] = Math.log10(raw);
-					matrix.value[i][j][k] = raw;
+					matrix.value[0][i][j][k] = raw0;
+					matrix.value[1][i][j][k] = raw1;
 					//System.out.println(matrix.value[i][j][k]);
 				}
 	}
@@ -101,13 +106,17 @@ public class Train {
 		//System.out.println(likely[4]);
 	}
 	
-	public void print_count()
+	public void print_count(int which)
 	{
 		for(int i=0;i<class_num;i++){
 			System.out.println("for class"+i);
 			for(int j=0;j<dim;j++){
 				for(int k=0;k<dim;k++)
-					System.out.print(count[j][k][i]+" ");
+					if(which==1)
+						System.out.print(count1[j][k][i]+" ");
+					else {
+						System.out.print(count0[j][k][i]+" ");
+					}
 				System.out.println();
 			}
 		}

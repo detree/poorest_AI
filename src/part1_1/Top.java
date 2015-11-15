@@ -8,8 +8,7 @@ public class Top {
 		LikelyMatrix Fij = new LikelyMatrix(28,10,2);
 		double []class_psbl = new double[10];
 		
-		
-		trainer.set_para(4.0, 28, 10);
+		trainer.set_para(2.0, 28, 10);
 		if(!trainer.scan_file())
 			System.out.println("some error during scan file for train.");
 		trainer.calculate_likely(Fij);
@@ -36,7 +35,23 @@ public class Top {
 		if(!tester.scan_and_test(Fij, class_psbl))
 			System.out.println("some error during scan file for test.");
 		tester.statistic();
-		
+		tester.get_confusion();
+		odds_ratio(Fij, 0,4);
+	}
+	
+	public static void odds_ratio(LikelyMatrix matrix, int c1, int c2){
+		for(int i=0;i<matrix.dim;i++){
+			for(int j=0;j<matrix.dim;j++){
+				double odd1 = matrix.value[1][i][j][c1], odd2 = matrix.value[1][i][j][c2];
+				if( Math.abs( Math.log10(odd1/odd2) )<0.03 )
+					System.out.print(" ");
+				else if(Math.log10(odd1/odd2)>0)
+					System.out.print("+");
+				else
+					System.out.print("-");
+			}
+			System.out.println();
+		}
 	}
 
 }

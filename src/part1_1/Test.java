@@ -12,14 +12,23 @@ public class Test {
 	private String img_file, label_file;
 	private int dim, class_num;//image size, and how many different classes.
 	private int []class_count, correct_count;
+	private int [][]confusion;//confusion[i][j] declare as i but actually is j;
 	public Test(){
 		label_file = img_file = null;
 		dim = 0;
 		class_num = 0;
+		class_count = null;
+		correct_count = null;
+		confusion = null;
 	}
 	public Test(String img, String label){
 		img_file = img;
 		label_file = label;
+		dim = 0;
+		class_num = 0;
+		class_count = null;
+		correct_count = null;
+		confusion = null;
 	}
 	public void choose_file(String img, String label)
 	{
@@ -32,6 +41,7 @@ public class Test {
 		class_num = classin;
 		class_count = new int[class_num];
 		correct_count = new int[class_num];
+		confusion = new int[class_num][class_num];
 	}
 	
 	public boolean scan_and_test(LikelyMatrix matrix, double[] class_psbl)
@@ -63,7 +73,7 @@ public class Test {
             		for(int j=0; j<dim; j++){
             			for(int k=0; k<dim; k++){
             				if(line[j].charAt(k)==' ')
-            					curr_psbl+=1.0*Math.log10(matrix.value[0][j][k][i]);
+            					curr_psbl+=0.5*Math.log10(matrix.value[0][j][k][i]);
             				else if(line[j].charAt(k)=='+' || line[j].charAt(k)=='#')
             					curr_psbl+=1.0*Math.log10(matrix.value[1][j][k][i]);
             			}
@@ -76,6 +86,7 @@ public class Test {
             	if(maxi==number)
             		correct_count[number]++;
             	else{
+            		confusion[maxi][number]++;
             		//System.out.println("wrong guess with:"+maxi+" real:"+number);
             	}
             }
@@ -100,5 +111,18 @@ public class Test {
 			System.out.println("for number"+i+" correct rate="+(double)correct_count[i]/class_count[i]);
 		}
 		System.out.println("overall correctness:"+(double)correct/all);
+	}
+	public void get_confusion(){
+		System.out.print("conf\t");
+		for(int i=0;i<class_num;i++)
+			System.out.print(i+"\t");
+		System.out.println();
+		for(int i=0;i<class_num;i++)
+		{
+			System.out.print(i+"\t");
+			for(int j=0;j<class_num;j++)
+				System.out.print(confusion[i][j]+"\t");
+			System.out.println();
+		}
 	}
 }

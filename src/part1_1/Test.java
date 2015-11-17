@@ -13,6 +13,8 @@ public class Test {
 	private int dim, class_num;//image size, and how many different classes.
 	private int []class_count, correct_count;
 	private int [][]confusion;//confusion[i][j] declare as i but actually is j;
+	private String[][] save=null;
+	private double []save_psbl=null;
 	public Test(){
 		label_file = img_file = null;
 		dim = 0;
@@ -42,6 +44,10 @@ public class Test {
 		class_count = new int[class_num];
 		correct_count = new int[class_num];
 		confusion = new int[class_num][class_num];
+		save = new String[dim][class_num];
+		save_psbl = new double[class_num];
+		for(int i=0;i<class_num;i++)
+			save_psbl[i]=-9999999.0;
 	}
 	
 	public boolean scan_and_test(LikelyMatrix matrix, double[] class_psbl)
@@ -83,8 +89,14 @@ public class Test {
             			maxi = i;
             		}
             	}
-            	if(maxi==number)
+            	if(maxi==number){
             		correct_count[number]++;
+            		if(max_psbl>save_psbl[number])
+            		{
+            			for(int k=0;k<dim;k++)
+            				save[k][number] = line[k];
+            		}
+            	}
             	else{
             		confusion[maxi][number]++;
             		//System.out.println("wrong guess with:"+maxi+" real:"+number);
@@ -112,7 +124,19 @@ public class Test {
 		}
 		System.out.println("overall correctness:"+(double)correct/all);
 	}
+	
+	public void max_psbl_example(){
+		for(int i=0;i<class_num;i++)
+		{
+			System.out.println("For class:"+i);
+			for(int j=0;j<dim;j++)
+				System.out.println(save[j][i]);
+			System.out.println();
+		}
+	}
+	
 	public void get_confusion(){
+		
 		System.out.print("conf\t");
 		for(int i=0;i<class_num;i++)
 			System.out.print(i+"\t");
@@ -121,7 +145,7 @@ public class Test {
 		{
 			System.out.print(i+"\t");
 			for(int j=0;j<class_num;j++)
-				System.out.print(confusion[i][j]+"\t");
+				System.out.print((double)confusion[i][j]/class_count[i]+"\t");
 			System.out.println();
 		}
 	}

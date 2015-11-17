@@ -1,5 +1,7 @@
 package part1_1;
 
+import java.text.DecimalFormat;
+
 public class Top {
 
 	public static void main(String[] args) {
@@ -15,28 +17,29 @@ public class Top {
 		trainer.get_class_likely(class_psbl);
 //		for(int i=0;i<10;i++)
 //			System.out.println(class_psbl[i]);
-//		for(int i=0;i<Fij.class_num;i++){
-//			System.out.println("for class"+i);
-//			for(int j=0;j<Fij.dim;j++){
-//				for(int k=0;k<Fij.dim;k++)
-//					System.out.print(Fij.value[1][j][k][i]+" ");
-//					if(Fij.value[1][j][k][i]<0.00001){
-//						System.out.print(" ");
-//					}
-//					else {
-//						System.out.print("+");
-//					}
-//				System.out.println();
-//			}
-//		}
-		
+		for(int i=5;i<6;i++){
+			System.out.println("for class"+i);
+			for(int j=0;j<Fij.dim;j++){
+				for(int k=0;k<Fij.dim;k++)
+					if(Math.log10(Fij.value[1][j][k][i])>-1.0)
+						System.out.print("#");
+					else if(Math.log10(Fij.value[1][j][k][i])>-2.0)
+						System.out.print("-");
+					else
+						System.out.print(".");
+					//System.out.print(new DecimalFormat("#0.0").format(Math.log10(Fij.value[1][j][k][i]))+" ");
+				System.out.println();
+			}
+		}
+		System.out.println("Fij end here");
 		Test tester = new Test("digitdata/testimages", "digitdata/testlabels");
 		tester.set_para(28, 10);
 		if(!tester.scan_and_test(Fij, class_psbl))
 			System.out.println("some error during scan file for test.");
-		tester.statistic();
+		//tester.statistic();
 		tester.get_confusion();
-		odds_ratio(Fij, 0,4);
+		//odds_ratio(Fij, 3,8);
+		//tester.max_psbl_example();
 	}
 	
 	public static void odds_ratio(LikelyMatrix matrix, int c1, int c2){

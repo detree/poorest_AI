@@ -29,7 +29,8 @@ public class Perceptron {
 	
 	private double learn_rate(int curr_epoch){
 		double f;
-		f = 1000.0/(1000.0+(double)curr_epoch);
+		f=Math.exp(-(curr_epoch/10.0));
+		//f = 1000.0/(1000.0+(double)curr_epoch);
 		return f;
 	}
 	

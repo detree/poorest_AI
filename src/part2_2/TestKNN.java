@@ -76,7 +76,7 @@ public class TestKNN {
 		for(int i=0;i<train.get_size();i++){
 			//System.out.println(i);
 			double curr_dist;
-			SingleTrain cmpr_to = shift_to_overlap(train.get_single_train(i), target);
+			SingleTrain cmpr_to =train.get_single_train(i);
 			
 			curr_dist = naive_distance(cmpr_to, target);
 			
@@ -130,7 +130,7 @@ public class TestKNN {
             	if(linei==27){
             		linei=-1;
             		class_cnt[curr_digit.label]++;
-            		int guess = 0;//predict(curr_digit);
+            		int guess = predict(curr_digit);
             		if(guess == curr_digit.label)
             			correct_cnt[guess]++;
             		

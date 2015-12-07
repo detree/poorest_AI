@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class TrainSet {
-	ArrayList<SingleTrain> train_data=null;
-	int size=-1;
-	String img_file, label_file;
+	private ArrayList<SingleTrain> train_data=null;
+	private int size=-1;
+	private String img_file, label_file;
 	public TrainSet(String img, String label) {
 		img_file = img;
 		label_file = label;

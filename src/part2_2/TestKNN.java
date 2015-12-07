@@ -7,12 +7,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
 
+
 public class TestKNN {
 	private int class_cnt[], correct_cnt[], class_num;
-	TrainSet train_data = null;
+	TrainSet train = null;
 	String img_file, label_file;
 	public TestKNN(TrainSet train_data_in, String img, String label, int class_num_in){
-		train_data = train_data_in;
+		train = train_data_in;
 		img_file = img;
 		label_file = label;
 		class_num = class_num_in;
@@ -45,6 +46,19 @@ public class TestKNN {
 		return ret;
 	}
 	
+	private SingleTrain shift_to_overlap(SingleTrain in, SingleTrain target){
+		int xrange = 3, yrange = 3;
+		int max_overlap = Integer.MIN_VALUE, max_shiftx=0, max_shifty=0;
+		for(int i=-xrange; i<=xrange; i++)
+			for(int j=-yrange; j<=yrange; j++){
+				if(check_overlap(img_shift(in, i, j), target)>max_overlap){
+					max_shiftx = i;
+					max_shifty = j;
+				}
+			}
+		return img_shift(in, max_shiftx, max_shifty);
+	}
+	
 	private double naive_distance(SingleTrain in, SingleTrain target){
 		double dist=0.0;
 		for(int i=0;i<in.size;i++)
@@ -56,8 +70,25 @@ public class TestKNN {
 		return dist;
 	}
 	
-	private int predict(SingleTrain in){
-		
+	private int predict(SingleTrain target){
+		ItemInOrder k_neighbour = new ItemInOrder(10);
+		for(int i=0;i<train.get_size();i++){
+			double curr_dist;
+			SingleTrain cmpr_to = shift_to_overlap(train.get_single_train(i), target);
+			curr_dist = naive_distance(cmpr_to, target);
+			k_neighbour.check_and_add(train.get_single_train(i).label, curr_dist);
+		}
+		int count[]={0,0,0,0,0,0,0,0,0,0};
+		int max_count = Integer.MIN_VALUE, max_num = -1;
+		for(int i=1;i<=10;i++)
+		{
+			count[k_neighbour.get_item_num(i)]++;
+			if(count[k_neighbour.get_item_num(i)]>max_count){
+				max_count = count[k_neighbour.get_item_num(i)];
+				max_num = k_neighbour.get_item_num(i);
+			}
+		}
+		return max_num;
 	}
 	
 	public void scan_and_test(){
@@ -92,7 +123,9 @@ public class TestKNN {
             	if(linei==27){
             		linei=-1;
             		class_cnt[curr_digit.label]++;
-            		
+            		int guess = predict(curr_digit);
+            		if(guess == curr_digit.label)
+            			correct_cnt[guess]++;
             		
             	}
             }
@@ -106,5 +139,15 @@ public class TestKNN {
         catch(IOException ex) {
             System.out.println("Error reading file '"+ img_file + "' and '" + label_file + "'");
         }
+	}
+	
+	public void get_statistic(){
+		int total_correct=0, total=0;
+		for(int i=0;i<class_num;i++){
+			total_correct+=correct_cnt[i];
+			total+=class_cnt[i];
+			System.out.println("for "+i+",correct:"+(double)correct_cnt[i]+" out of:"+class_cnt[i]);
+		}
+		System.out.println("overall:"+(double)total_correct/total);
 	}
 }

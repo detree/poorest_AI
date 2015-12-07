@@ -54,6 +54,7 @@ public class TestKNN {
 				if(check_overlap(img_shift(in, i, j), target)>max_overlap){
 					max_shiftx = i;
 					max_shifty = j;
+					
 				}
 			}
 		return img_shift(in, max_shiftx, max_shifty);
@@ -73,10 +74,14 @@ public class TestKNN {
 	private int predict(SingleTrain target){
 		ItemInOrder k_neighbour = new ItemInOrder(10);
 		for(int i=0;i<train.get_size();i++){
+			//System.out.println(i);
 			double curr_dist;
 			SingleTrain cmpr_to = shift_to_overlap(train.get_single_train(i), target);
+			
 			curr_dist = naive_distance(cmpr_to, target);
+			
 			k_neighbour.check_and_add(train.get_single_train(i).label, curr_dist);
+			
 		}
 		int count[]={0,0,0,0,0,0,0,0,0,0};
 		int max_count = Integer.MIN_VALUE, max_num = -1;
@@ -100,7 +105,7 @@ public class TestKNN {
             BufferedReader fileimg = new BufferedReader(init_fileimg);
             Scanner filelabel = new Scanner(new File(label_file));
             
-            int linei=-1, number=0;
+            int linei=-1, number=0, count = 0;
             SingleTrain curr_digit = null;//for temporary store the current train matrix.
             
             while(  (line = fileimg.readLine()) != null) {
@@ -109,6 +114,8 @@ public class TestKNN {
             	if(linei==0){
             		number = filelabel.nextInt();
             		curr_digit = new SingleTrain(28, number);
+            		count++;
+            		System.out.println(count);
             	}
             	//get every line in the single test image.
             	for(int j=0; j<line.length(); j++){
@@ -123,7 +130,7 @@ public class TestKNN {
             	if(linei==27){
             		linei=-1;
             		class_cnt[curr_digit.label]++;
-            		int guess = predict(curr_digit);
+            		int guess = 0;//predict(curr_digit);
             		if(guess == curr_digit.label)
             			correct_cnt[guess]++;
             		

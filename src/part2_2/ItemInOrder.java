@@ -18,10 +18,12 @@ public class ItemInOrder {
 	}
 	
 	public void check_and_add(int train_num, double dist_in){
-		for(int i=0;i<item.size();i++){
+		int size_now = item.size();
+		for(int i=1;i<size_now;i++){
 			if(dist_in>=dist_val.get(i-1) && dist_in<=dist_val.get(i)){
 				item.add(i, train_num);
 				dist_val.add(i, dist_in);
+				break;
 			}
 		}
 		if(item.size()>max_size+2){//including two sentinels.

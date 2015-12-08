@@ -11,6 +11,7 @@ public class Test {
 	private int class_cnt[], correct_cnt[], class_num;
 	Perceptron percep = null;
 	String img_file, label_file;
+	private int confusion[][];
 	public Test(Perceptron percep_in, String img, String label, int class_num_in){
 		percep = percep_in;
 		img_file = img;
@@ -18,6 +19,7 @@ public class Test {
 		class_num = class_num_in;
 		class_cnt = new int[class_num];
 		correct_cnt = new int[class_num];
+		confusion = new int[class_num_in][class_num_in];
 	}
 	private double evaluate(SingleTrain train_data, int curr_class){
 		double ret = 0;
@@ -74,6 +76,8 @@ public class Test {
     				}
     				if(max_sum_class == curr_train.label)
     					correct_cnt[curr_train.label]++;
+    				else
+            			confusion[curr_train.label][max_sum_class]++;
             	}
             }
             //close files.
@@ -96,6 +100,12 @@ public class Test {
 			System.out.println("for "+i+",correct:"+(double)correct_cnt[i]/class_cnt[i]);
 		}
 		System.out.println("overall:"+(double)total_correct/total);
+		
+		for(int i=0;i<10;i++){
+			for(int j=0;j<10;j++)
+				System.out.print((double)confusion[i][j]/class_cnt[i] + "\t");
+			System.out.println();
+		}
 	}
 	
 }

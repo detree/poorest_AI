@@ -61,6 +61,7 @@ public class Perceptron {
 	
 	public void train_in_order(){
 		for(int curr_epoch = 0; curr_epoch<max_epoch; curr_epoch++){
+			int accurate_cnt = 0;
 			//iterate through every training data to train
 			for(int i=0;i<train_data.get_size();i++){
 				SingleTrain curr_train = train_data.get_single_train(i);
@@ -77,12 +78,16 @@ public class Perceptron {
 				if(max_sum_class != curr_train.label){
 					update_weight(curr_epoch, curr_train, curr_train.label, max_sum_class);
 				}
+				else
+					accurate_cnt++;
 			}
+			System.out.println(curr_epoch+"\t"+(double)accurate_cnt/5000.0);
 		}
 	}
 	
 	public void train_rand_order(){
 		for(int curr_epoch = 0; curr_epoch<max_epoch; curr_epoch++){
+			int accurate_cnt = 0;
 			boolean rand_hash[] = new boolean[train_data.size];
 			Random rnd = new Random();
 			int tried_count = 0, i;
@@ -109,7 +114,10 @@ public class Perceptron {
 				if(max_sum_class != curr_train.label){
 					update_weight(curr_epoch, curr_train, curr_train.label, max_sum_class);
 				}
+				else
+					accurate_cnt++;
 			}
+			System.out.println(curr_epoch+"\t"+(double)accurate_cnt/5000.0);
 		}
 	}
 	

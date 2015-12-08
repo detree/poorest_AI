@@ -10,7 +10,7 @@ public class Top {
 		
 		Perceptron p1;
 		p1 = new Perceptron(train1, 10, 28);
-		p1.set_para(100, 1, "rand");
+		p1.set_para(42, 0, "rand");
 		//p1.train_in_order();
 		p1.train_rand_order();
 		

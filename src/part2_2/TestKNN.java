@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.chrono.MinguoChronology;
 import java.util.Scanner;
 
 
@@ -12,6 +13,7 @@ public class TestKNN {
 	private int class_cnt[], correct_cnt[], class_num;
 	TrainSet train = null;
 	String img_file, label_file;
+	private int confusion[][];
 	public TestKNN(TrainSet train_data_in, String img, String label, int class_num_in){
 		train = train_data_in;
 		img_file = img;
@@ -19,6 +21,7 @@ public class TestKNN {
 		class_num = class_num_in;
 		class_cnt = new int[class_num];
 		correct_cnt = new int[class_num];
+		confusion = new int[class_num_in][class_num_in];
 	}
 	
 	private int check_overlap(SingleTrain in, SingleTrain target){
@@ -47,7 +50,7 @@ public class TestKNN {
 	}
 	
 	private SingleTrain shift_to_overlap(SingleTrain in, SingleTrain target){
-		int xrange = 3, yrange = 3;
+		int xrange = 0, yrange = 0;
 		int max_overlap = Integer.MIN_VALUE, max_shiftx=0, max_shifty=0;
 		for(int i=-xrange; i<=xrange; i++)
 			for(int j=-yrange; j<=yrange; j++){
@@ -71,21 +74,52 @@ public class TestKNN {
 		return dist;
 	}
 	
+	private int min(int a, int b){
+		if(a<b) return a; else return b;
+	}
+	private double naive_distance2(SingleTrain in, SingleTrain target){
+		double dist=0.0;
+		for(int i=0;i<in.size;i++)
+			for(int j=0;j<in.size;j++){
+				if(in.val[i][j] != target.val[i][j]){
+					int ipj= i+j+2;//i plus j
+					boolean flag = true;
+					for(int ii=i; ii<min(in.size,ipj-j); ii++){
+						for(int jj=j;jj<min(in.size, ipj-ii);jj++){
+							if(in.val[ii][jj] == target.val[i][j]){
+								dist+=((ii-i)*(ii-i)+(jj-j)*(jj-j));
+								flag = false;
+								break;
+							}
+						}
+						if(!flag) break;
+					}
+					if(flag){
+						dist+=2;
+					}
+				}
+			}
+		return dist;
+	}
+	
 	private int predict(SingleTrain target){
-		ItemInOrder k_neighbour = new ItemInOrder(10);
+		int k=5;
+		ItemInOrder k_neighbour = new ItemInOrder(k);
 		for(int i=0;i<train.get_size();i++){
 			//System.out.println(i);
 			double curr_dist;
-			SingleTrain cmpr_to =train.get_single_train(i);
+			//SingleTrain cmpr_to = shift_to_overlap(train.get_single_train(i), target);
+			SingleTrain cmpr_to = train.get_single_train(i);
+			//SingleTrain cmpr_to = img_shift(train.get_single_train(i), -1, 0);
 			
-			curr_dist = naive_distance(cmpr_to, target);
+			curr_dist = naive_distance2(cmpr_to, target);
 			
 			k_neighbour.check_and_add(train.get_single_train(i).label, curr_dist);
 			
 		}
 		int count[]={0,0,0,0,0,0,0,0,0,0};
 		int max_count = Integer.MIN_VALUE, max_num = -1;
-		for(int i=1;i<=10;i++)
+		for(int i=1;i<=k;i++)
 		{
 			count[k_neighbour.get_item_num(i)]++;
 			if(count[k_neighbour.get_item_num(i)]>max_count){
@@ -114,8 +148,8 @@ public class TestKNN {
             	if(linei==0){
             		number = filelabel.nextInt();
             		curr_digit = new SingleTrain(28, number);
-            		count++;
-            		System.out.println(count);
+            		//count++;
+            		//System.out.println(count);
             	}
             	//get every line in the single test image.
             	for(int j=0; j<line.length(); j++){
@@ -133,6 +167,8 @@ public class TestKNN {
             		int guess = predict(curr_digit);
             		if(guess == curr_digit.label)
             			correct_cnt[guess]++;
+            		else
+            			confusion[curr_digit.label][guess]++;
             		
             	}
             }
@@ -153,8 +189,14 @@ public class TestKNN {
 		for(int i=0;i<class_num;i++){
 			total_correct+=correct_cnt[i];
 			total+=class_cnt[i];
-			System.out.println("for "+i+",correct:"+(double)correct_cnt[i]+" out of:"+class_cnt[i]);
+			System.out.println("for "+i+",correct:"+(double)correct_cnt[i]/class_cnt[i]);
 		}
 		System.out.println("overall:"+(double)total_correct/total);
+		System.out.println("confusion:");
+		for(int i=0;i<10;i++){
+			for(int j=0;j<10;j++)
+				System.out.print((double)confusion[i][j]/class_cnt[i] + "\t");
+			System.out.println();
+		}
 	}
 }

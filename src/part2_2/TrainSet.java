@@ -18,6 +18,22 @@ public class TrainSet {
 		train_data = new ArrayList<SingleTrain>();
 	}
 	
+	private SingleTrain img_shift(SingleTrain in, int x_shift, int y_shift){
+		int size_here = in.size;
+		SingleTrain ret = new SingleTrain(in.size, in.label);
+		for(int i=0;i<in.size;i++)
+			for(int j=0;j<in.size;j++){
+				if(i-x_shift<0 || i-x_shift>=size_here ||
+					j-y_shift<0 || j-y_shift>=size_here){
+					ret.val[i][j] = false;
+				}
+				else{
+					ret.val[i][j] = in.val[i-x_shift][j-y_shift];
+				}
+			}
+		return ret;
+	}
+	
 	//scan the file and get the training matrixes into the array list
 	public void scan_file(){
 		String line = null;
@@ -53,6 +69,9 @@ public class TrainSet {
             		size++;
             		linei=-1;
             		train_data.add(curr_train_data);
+//            		for(int i=-1;i<=1;i++)
+//            			for(int j=-1;j<=1;j++)
+//            				train_data.add(img_shift(curr_train_data,i,j));
             	}
             }
             //close files.
